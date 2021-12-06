@@ -3,8 +3,6 @@ package UI;
 import Database.Connect;
 
 import javax.swing.*;
-import java.awt.Font;
-import javax.swing.text.StyledEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,22 +21,18 @@ import java.time.LocalDateTime;
 
 public class EditingUI extends JFrame {
 
-
     private Stack<String> undoStack;
     private Stack<String> redoStack;
     private String helper;
-    // no open / save
-//    private String filePath;
-    //where should i choose the path to store the memos? on the desktop?? store in the databases. How
-//should implement autosave to the database
+    private boolean opened;
+    private boolean saved;
 
-    //menus...
-//    private JPopupMenu popupMenu1;
-//    private JMenu themeMenu;
     private JMenuBar menuBar;
 
     private JMenu fileMenu;
+    private JMenuItem newFeature;
     private JMenuItem saveFeature;
+    private JMenuItem backFeature;
     private JMenuItem exitFeature;
 
     private JMenu editMenu;
@@ -57,31 +51,38 @@ public class EditingUI extends JFrame {
     private JMenuItem smallerFeature;
 
     private JMenuItem styleMenu;
-//    private JMenuItem boldFeature;
-//    private JMenuItem italicFeature;
-
     private JCheckBoxMenuItem boldCheckBox;
     private JCheckBoxMenuItem italicCheckBox;
-//    private JCheckBoxMenuItem underlineCheckBox;
 
     private ActionListener listener;
-//    private JMenuItem underlineFeature;
 
 
     //font menu
-
-
-    private String name;
-    private int style;
-    private int size;
+    private String fontName;
+    private int fontStyle = 0;
+    private int fontSize;
 
     private int difference = 2;
 
+    //top panel
+    private JPanel topPanel;
+    //textBox
+    private JLabel titleLabel;
+    private JTextField titleField;
+
+    private JButton saveButton;
+    private JButton cancelButton;
+
+    private String resultTitle;
+
+
+    //panel for the textarea
     private JScrollPane scrollPane;
     private JTextArea textArea;
 
     private Connection conn;
-
+    private String name;
+    private String allTexts;
 
     public EditingUI() {
         undoStack = new Stack<String>();
@@ -89,20 +90,36 @@ public class EditingUI extends JFrame {
         undoStack.push("");
         redoStack.push("");
         helper = "";
+        opened = false;
+        saved = false;
         this.initialComponents();
+
+        //connecting to the database
         conn = Connect.connect();
     }
 
+    public String getAllTexts() {
+        allTexts = textArea.getText();
+        return allTexts;
+    }
 
     //initial components: method is called within the constructor to initialize the form
     private void initialComponents() {
-//        this.popupMenu1 = new JPopupMenu();
-//        this.themeMenu = new JMenu();
+        this.topPanel = new JPanel();
 
-//        this.metalTheme = new JRadioButtonMenuItem();
-//        this.nimbusTheme = new JRadioButtonMenuItem();
-//        this.windowsClassicTheme = new JRadioButtonMenuItem();
-//        this.windowsTheme = new JRadioButtonMenuItem(); //????
+        this.titleLabel = new JLabel("Title (Press Enter to Save): ");
+        topPanel.add(titleLabel);
+
+        this.titleField = new JTextField(10);
+        titleField.addActionListener((e) -> System.out.println("textfield has value: " + titleField.getText()));
+        topPanel.add(titleField);
+
+        createButton();
+        topPanel.add(saveButton);
+        topPanel.add(cancelButton);
+        topPanel.setVisible(true);
+
+        this.add(topPanel, BorderLayout.NORTH);
 
         this.scrollPane = new JScrollPane();
         this.textArea = new JTextArea();
@@ -110,7 +127,9 @@ public class EditingUI extends JFrame {
         this.menuBar = new JMenuBar();
 
         this.fileMenu = new JMenu();
+        this.newFeature = new JMenuItem();
         this.saveFeature = new JMenuItem();
+        this.backFeature = new JMenuItem();
         this.exitFeature = new JMenuItem();
 
         this.editMenu = new JMenu();
@@ -123,22 +142,23 @@ public class EditingUI extends JFrame {
         this.findFeature = new JMenuItem();
 
 
+//        name = textArea.getText();
 
-//        this.name = name;
-        name = textArea.getText();
-
+//        name = new SaveTitle().getResult();
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
         String formatDateTime = now.format(format);
+        System.out.println(formatDateTime);
+        System.out.println(formatDateTime.length()); //length 19
         textArea.insert(formatDateTime, 0);
 
-        size = 13;
-        style = Font.PLAIN;
+//        textArea.setCaretPosition(formatDateTime.length());
+
+        fontSize = 13;
+        fontStyle = Font.PLAIN;
 
         this.listener = new ChoiceListener(); //???
-//        this.style = style;
-//        this.size = size;
 
         this.fontMenu = new JMenu();
 
@@ -147,18 +167,12 @@ public class EditingUI extends JFrame {
         this.biggerFeature = new JMenuItem();
 
         this.styleMenu = new JMenu();
-//        this.boldFeature = new JMenuItem();
-//        this.italicFeature = new JMenuItem();
-
         this.boldCheckBox = new JCheckBoxMenuItem("Bold");
         this.italicCheckBox = new JCheckBoxMenuItem("Italic");
-//        this.underlineCheckBox = new JCheckBoxMenuItem("Underline");
-
 
         //what is a separator????????????
 
 
-//        this.themeMenu.setText("Themes");
         this.setTitle("Memo");
         this.setAutoRequestFocus(false);//？？？
         this.textArea.setColumns(25);
@@ -167,24 +181,32 @@ public class EditingUI extends JFrame {
         this.scrollPane.setViewportView(this.textArea);
 
 
-        //
+        //file menu
         this.fileMenu.setText("File");
+        //new
+        newFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.META_MASK));
+        newFeature.setText("New");
+        newFeature.addActionListener(new NewActionListener());
+        fileMenu.add(newFeature);
         //save current memo to the database: editedContents.db
         saveFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_MASK));
         saveFeature.setText("Save");
         saveFeature.addActionListener(new SaveActionListener());
         fileMenu.add(saveFeature);
-
-        //exit to the ui of all memos
+        //back
+        backFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.META_MASK));
+        backFeature.setText("Back");
+        backFeature.addActionListener(new ExitActionListener());
+        fileMenu.add(backFeature);
+        //exit
         exitFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_MASK));
         exitFeature.setText("Exit");
-        exitFeature.addActionListener(new ExitActionListener());
+        exitFeature.addActionListener((e) -> System.exit(0));
         fileMenu.add(exitFeature);
 
 
         //editMenu
         this.editMenu.setText("Edit");
-
         //undo
         undoFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.META_MASK));
         undoFeature.setText("Undo");
@@ -215,7 +237,6 @@ public class EditingUI extends JFrame {
         deleteSelectedFeature.setText("Delete");
         deleteSelectedFeature.addActionListener(new DeleteActionListener());
         editMenu.add(deleteSelectedFeature);
-
         //find
         findFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.META_MASK));
         findFeature.setText("Find");
@@ -228,7 +249,6 @@ public class EditingUI extends JFrame {
 
         //sub menu: size
         this.sizeMenu.setText("Size");
-
         biggerFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 2));
         biggerFeature.setText("Bigger");
         biggerFeature.addActionListener(new BiggerSizeListener());
@@ -237,29 +257,12 @@ public class EditingUI extends JFrame {
         smallerFeature.setText("Smaller");
         smallerFeature.addActionListener(new SmallerSizeListener());
 
-
-//        boldFeature.addActionListener(new BoldActionListener());
         sizeMenu.add(biggerFeature);
         sizeMenu.add(smallerFeature);
         fontMenu.add(sizeMenu);
 
-
         //sub menu: style
         this.styleMenu.setText("Style");
-//        //bold
-//        boldFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 2));
-//        boldFeature.setText("Bold");
-//        boldFeature.addActionListener(new BoldActionListener());
-////        fontMenu.add(boldFeature);
-//        //italic
-//        italicFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 2));
-//        italicFeature.setText("Italic");
-//        italicFeature.addActionListener(new ItalicActionListener());
-//        fontMenu.add(italicFeature);
-
-//        styleMenu.add(boldFeature);
-//        styleMenu.add(italicFeature);
-
         //bold
         boldCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 2));
 //        boldCheckBox.setText("Bold");
@@ -272,11 +275,6 @@ public class EditingUI extends JFrame {
 //        italicCheckBox.addActionListener(new ItalicActionListener());
         italicCheckBox.addActionListener(listener);
 
-        //underline
-//        underlineCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, 2));
-//        underlineCheckBox.addActionListener(listener);
-
-
         styleMenu.add(boldCheckBox);
         styleMenu.add(italicCheckBox);
 //        styleMenu.add(underlineCheckBox);
@@ -285,57 +283,163 @@ public class EditingUI extends JFrame {
 
 
         //layout
-        GroupLayout layout = new GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addContainerGap()
-                                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
-                                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addContainerGap()
-                                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                                .addContainerGap())
-        );
+//        GroupLayout layout = new GroupLayout(getContentPane());
+//        getContentPane().setLayout(layout);
+//        layout.setHorizontalGroup(
+//                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+//                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addContainerGap()
+//                                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
+//                                .addContainerGap())
+//        );
+//        layout.setVerticalGroup(
+//                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+//                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addContainerGap()
+//                                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+//                                .addContainerGap())
+//        );
 
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
         menuBar.add(fontMenu);
         this.setJMenuBar(menuBar);
-        this.getContentPane().setLayout(layout); //maybe make layout local and private?
+//        this.getContentPane().setLayout(layout); //maybe make layout local and private?
 
-        pack();
+        this.add(scrollPane);
+        this.pack();
+        this.setLocationRelativeTo(null);
     }
+
+
+    private boolean isOpened() {
+        return opened;
+    }
+
+    private boolean isSaved() {
+        return saved;
+    }
+
+    //save and cancel buttons
+    private void createButton() {
+        this.saveButton = new JButton("Confirm");
+        this.cancelButton = new JButton("Cancel");
+        saveButton.addActionListener(new SaveTitleActionListener());
+        cancelButton.addActionListener((e -> System.exit(0)));
+    }
+    class SaveTitleActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            resultTitle = titleField.getText();
+            titleField.setText(titleField.getText());
+            JOptionPane.showMessageDialog(null, "Title Saved");
+
+//            String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
+//            try {
+//                PreparedStatement pstmt = conn.prepareStatement(sql);
+//                // set the corresponding param
+//                pstmt.setString(1, titleField.getText());
+////                System.out.println("--------\nthis is after inserting into the database");
+////                System.out.println(resultTitle); ///by this time, name has not be assigned by users
+//                pstmt.setString(2, textArea.getText());
+//                // update
+//                pstmt.executeUpdate();
+//                JOptionPane.showMessageDialog(null, "Title Saved");
+//            } catch (SQLException sqlE) {
+//                sqlE.printStackTrace();
+//            }
+
+//            System.exit(0);
+        }
+    }
+
+    class NewActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if (!isSaved()) {
+                int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
+                if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
+                else if (choice == JOptionPane.CANCEL_OPTION) return;
+            }
+//            new SaveActionListener().actionPerformed(e);
+            dispose();
+            EditingUI newUI = new EditingUI();
+            newUI.setVisible(true);
+
+        }
+    }
+
 
     class SaveActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            String sql = "INSERT INTO memos(name,contents) VALUES(?,?)";
 
-
-            //Connection conn = this.connect();
+            String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
             try {
                 PreparedStatement pstmt = conn.prepareStatement(sql);
-
                 // set the corresponding param
-                pstmt.setString(1, name);
+                pstmt.setString(1, titleField.getText());
+//                System.out.println("--------\nthis is after inserting into the database");
+//                System.out.println(resultTitle); ///by this time, name has not be assigned by users
                 pstmt.setString(2, textArea.getText());
-//                pstmt.setInt(3, id);
-
                 // update
                 pstmt.executeUpdate();
-
-                JOptionPane.showMessageDialog(null, "Successfully Saved");
+                JOptionPane.showMessageDialog(null, "Memo Saved");
             } catch (SQLException sqlE) {
                 sqlE.printStackTrace();
             }
+
+
+
+
+
+
+
+//            String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
+//            try {
+//                PreparedStatement pstmt = conn.prepareStatement(sql);
+//                // set the corresponding param
+//                pstmt.setString(1, name);
+//                System.out.println("-------------------\nthis is after inserting into the database");
+//                System.out.println(name); ///by this time, name has not be assigned by users
+//                pstmt.setString(2, textArea.getText());
+//                // update
+//                pstmt.executeUpdate();
+////                JOptionPane.showMessageDialog(null, "Successfully Saved");
+//            } catch (SQLException sqlE) {
+//                sqlE.printStackTrace();
+//            }
+
+
+            /**
+             * Update data of a warehouse specified by the id
+             *
+             * @param id
+             * @param name title of the memo
+             * @param contents contents of the memo
+             */
+
+//            String updateTitle = "UPDATE memos SET name = ? , " + "WHERE contents = ?";
+//
+//            try {
+//                PreparedStatement pstmt = conn.prepareStatement(updateTitle);
+//                // set the corresponding param
+//                pstmt.setString(1, name);
+//                pstmt.setString(2, textArea.getText());
+////                pstmt.setInt(3, id);
+//                // update
+//                pstmt.executeUpdate();
+//                JOptionPane.showMessageDialog(null, "Successfully Saved");
+//            } catch (SQLException sqlE) {
+//                sqlE.printStackTrace();
+//            }
         }
     }
 
     class ExitActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+            if (!isSaved()) {
+                int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
+                if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
+                else if (choice == JOptionPane.CANCEL_OPTION) return;
+            }
+
             dispose();
             AllMemoUI ui = new AllMemoUI();
             ui.setVisible(true);
@@ -406,7 +510,7 @@ public class EditingUI extends JFrame {
             Object[] parameter = {ignoreCheckBox, message};
             boolean findStatus = true;
 
-            String tmp = JOptionPane.showInputDialog(null, parameter , "Find",JOptionPane.DEFAULT_OPTION); //???
+            String tmp = JOptionPane.showInputDialog(null, parameter, "Find", JOptionPane.DEFAULT_OPTION); //???
             String search = textArea.getText();
             if (ignoreCheckBox.isSelected()) {
                 if (!search.toLowerCase().contains(tmp.toLowerCase())) {
@@ -416,17 +520,16 @@ public class EditingUI extends JFrame {
                 while (search.toLowerCase().contains(tmp.toLowerCase())) {
                     search = getString(tmp, search);
                 }
-                if(findStatus){
+                if (findStatus) {
 //                    findStatus = false;
                     JOptionPane.showMessageDialog(null, "No More Results Found", "Search Finished", JOptionPane.INFORMATION_MESSAGE);
                 }
-            }
-            else {
-                if (!search.contains(tmp)){
+            } else {
+                if (!search.contains(tmp)) {
                     findStatus = false;
                     JOptionPane.showMessageDialog(null, "Not Found", "Unsuccessful Search", JOptionPane.ERROR_MESSAGE);
                 }
-                while (search.contains(tmp)){
+                while (search.contains(tmp)) {
                     search = getString(tmp, search);
                 }
                 if (findStatus) {
@@ -443,15 +546,14 @@ public class EditingUI extends JFrame {
             textArea.setCaretPosition(idx);
             StringBuilder replaceString = new StringBuilder();
             int i = 0;
-            while (i < tmp.length()){
+            while (i < tmp.length()) {
                 replaceString.append("~");
                 i++;
             }
-            search = search.substring(0, idx)+ replaceString.toString() + search.substring(idx + tmp.length());
+            search = search.substring(0, idx) + replaceString.toString() + search.substring(idx + tmp.length());
             return search;
         }
     }
-
 
 
     // This listener is shared among  checkboxes
@@ -462,27 +564,25 @@ public class EditingUI extends JFrame {
     }
 
 
-
-
     private void setSampleFont() {
         // Get font style
-        int style = 0;
-        if (italicCheckBox.isSelected()) style = style + Font.ITALIC;
-        if (boldCheckBox.isSelected()) style = style + Font.BOLD;
-        textArea.setFont(new Font(name, style, size));
+//        int style = 0;
+        if (italicCheckBox.isSelected()) fontStyle = fontStyle + Font.ITALIC;
+        if (boldCheckBox.isSelected()) fontStyle = fontStyle + Font.BOLD;
+        textArea.setFont(new Font(fontName, fontStyle, fontSize));
         textArea.repaint();
     }
 
     class BiggerSizeListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            size += difference;
+            fontSize += difference;
             setSampleFont();
         }
     }
 
     class SmallerSizeListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            size -= difference;
+            fontSize -= difference;
             setSampleFont();
         }
     }
@@ -497,12 +597,11 @@ public class EditingUI extends JFrame {
 //    }
 
 
-
     class BoldActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
 //            String faceName = textArea.getText();
 
-            style = Font.BOLD;
+            fontStyle = Font.BOLD;
 //            int size = 13;
 //            textArea.setFont(new Font(name, style, size));
 //            textArea.repaint();
@@ -514,7 +613,7 @@ public class EditingUI extends JFrame {
     class ItalicActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
 //            String faceName = textArea.getText();
-            style = Font.ITALIC;
+            fontStyle = Font.ITALIC;
             setSampleFont();
 //            textArea.setFont(new Font(name, style, size));
 //            textArea.repaint();
@@ -522,18 +621,20 @@ public class EditingUI extends JFrame {
     }
 
 
-    public static void main(String[] args) {
-        /* Create and display the form */
+
+        public static void main(String[] args) {
+            /* Create and display the form */
 
 //        new Runnable() {
 //            public void run() {
 //                new EditingUI().setVisible(true);
 //            }
 //        };
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new EditingUI().setVisible(true);
-            }
-        });
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    EditingUI curMemo = new EditingUI();
+                    curMemo.setVisible(true);
+                }
+            });
+        }
     }
-}
