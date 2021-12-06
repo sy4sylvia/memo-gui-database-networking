@@ -71,7 +71,7 @@ public class EditingUI extends JFrame {
     private JTextField titleField;
 
     private JButton saveButton;
-    private JButton cancelButton;
+//    private JButton cancelButton;
 
     private String resultTitle;
 
@@ -116,7 +116,7 @@ public class EditingUI extends JFrame {
 
         createButton();
         topPanel.add(saveButton);
-        topPanel.add(cancelButton);
+//        topPanel.add(cancelButton);
         topPanel.setVisible(true);
 
         this.add(topPanel, BorderLayout.NORTH);
@@ -150,8 +150,8 @@ public class EditingUI extends JFrame {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
         String formatDateTime = now.format(format);
         System.out.println(formatDateTime);
-        System.out.println(formatDateTime.length()); //length 19
-        textArea.insert(formatDateTime, 0);
+//        System.out.println(formatDateTime.length()); //length 19
+        textArea.insert("Created at: " + formatDateTime, 0);
 
 //        textArea.setCaretPosition(formatDateTime.length());
 
@@ -209,12 +209,12 @@ public class EditingUI extends JFrame {
         this.editMenu.setText("Edit");
         //undo
         undoFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.META_MASK));
-        undoFeature.setText("Undo");
+        undoFeature.setText("Undo Typing");
         undoFeature.addActionListener(new UndoActionListener());
         editMenu.add(undoFeature);
         //redo
-        redoFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.META_MASK));
-        redoFeature.setText("Redo");
+        redoFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.META_MASK | InputEvent.SHIFT_MASK));
+        redoFeature.setText("Redo Typing");
         redoFeature.addActionListener(new RedoActionListener());
         editMenu.add(redoFeature);
         //cut
@@ -249,11 +249,11 @@ public class EditingUI extends JFrame {
 
         //sub menu: size
         this.sizeMenu.setText("Size");
-        biggerFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 2));
+//        biggerFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, InputEvent.META_MASK)); //this doesn't work
         biggerFeature.setText("Bigger");
         biggerFeature.addActionListener(new BiggerSizeListener());
 
-        smallerFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 2));
+//        smallerFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.META_MASK)); // doesn't work as well
         smallerFeature.setText("Smaller");
         smallerFeature.addActionListener(new SmallerSizeListener());
 
@@ -264,13 +264,15 @@ public class EditingUI extends JFrame {
         //sub menu: style
         this.styleMenu.setText("Style");
         //bold
-        boldCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 2));
+//        boldCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 2));
 //        boldCheckBox.setText("Bold");
+
         boldCheckBox.addActionListener(listener);
 //        boldCheckBox.addActionListener(new BoldActionListener());
 //        fontMenu.add(boldFeature);
         //italic
-        italicCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 2));
+//        italicCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 2));
+
 //        italicCheckBox.setText("Italic");
 //        italicCheckBox.addActionListener(new ItalicActionListener());
         italicCheckBox.addActionListener(listener);
@@ -322,9 +324,9 @@ public class EditingUI extends JFrame {
     //save and cancel buttons
     private void createButton() {
         this.saveButton = new JButton("Confirm");
-        this.cancelButton = new JButton("Cancel");
+//        this.cancelButton = new JButton("Cancel");
         saveButton.addActionListener(new SaveTitleActionListener());
-        cancelButton.addActionListener((e -> System.exit(0)));
+//        cancelButton.addActionListener((e -> System.exit(0)));
     }
     class SaveTitleActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
@@ -566,7 +568,7 @@ public class EditingUI extends JFrame {
 
     private void setSampleFont() {
         // Get font style
-//        int style = 0;
+        int fontStyle = 0;
         if (italicCheckBox.isSelected()) fontStyle = fontStyle + Font.ITALIC;
         if (boldCheckBox.isSelected()) fontStyle = fontStyle + Font.BOLD;
         textArea.setFont(new Font(fontName, fontStyle, fontSize));
