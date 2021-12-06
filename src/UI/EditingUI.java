@@ -1,6 +1,7 @@
 package UI;
 
 import Database.Connect;
+import Networking.MemoData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,11 +9,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.EmptyStackException;
 import java.util.Locale;
 import java.util.Stack;
@@ -371,42 +377,54 @@ public class EditingUI extends JFrame {
 
     class SaveActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+            int choice = JOptionPane.showConfirmDialog(null, "Sure? Can't modify afterwards.", "Save?", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (choice == JOptionPane.CANCEL_OPTION) return;
+            else if (choice == JOptionPane.YES_OPTION) {
+                try {
+                    // Establish connection with the server
+                    Socket socket = new Socket("localhost", 8000);
 
-            String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
-            try {
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                // set the corresponding param
-                pstmt.setString(1, titleField.getText());
-//                System.out.println("--------\nthis is after inserting into the database");
-//                System.out.println(resultTitle); ///by this time, name has not be assigned by users
-                pstmt.setString(2, textArea.getText());
-                // update
-                pstmt.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Memo Saved");
-            } catch (SQLException sqlE) {
-                sqlE.printStackTrace();
+                    // Create an output stream to the server
+                    ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
+
+
+                    //create a memo subject and send to the server
+                    //title = titleField.getText();
+                    //contents = textArea.getText()
+                    MemoData md = new MemoData(titleField.getText(), textArea.getText());
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    //represent the objects as an array of bytes
+                    //then create an output stream
+                    ObjectOutputStream oos = new ObjectOutputStream(bos);
+                    oos.writeObject(md);
+                    oos.flush(); //make sure everything is flushed out
+                    byte[] objectBytes = bos.toByteArray();
+                    System.out.println("object bytes are: " + Arrays.toString(objectBytes));
+
+                    toServer.writeObject(md);
+
+                    JOptionPane.showMessageDialog(null, "Memo Saved");
+
+                }catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+
+
+//                String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
+//                try {
+//                    PreparedStatement pstmt = conn.prepareStatement(sql);
+//                    // set the corresponding param
+//                    pstmt.setString(1, titleField.getText());
+////                System.out.println("--------\nthis is after inserting into the database");
+////                System.out.println(resultTitle); ///by this time, name has not be assigned by users
+//                    pstmt.setString(2, textArea.getText());
+//                    // update
+//                    pstmt.executeUpdate();
+//                    JOptionPane.showMessageDialog(null, "Memo Saved");
+//                } catch (SQLException sqlE) {
+//                    sqlE.printStackTrace();
+//                }
             }
-
-
-
-
-
-
-
-//            String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
-//            try {
-//                PreparedStatement pstmt = conn.prepareStatement(sql);
-//                // set the corresponding param
-//                pstmt.setString(1, name);
-//                System.out.println("-------------------\nthis is after inserting into the database");
-//                System.out.println(name); ///by this time, name has not be assigned by users
-//                pstmt.setString(2, textArea.getText());
-//                // update
-//                pstmt.executeUpdate();
-////                JOptionPane.showMessageDialog(null, "Successfully Saved");
-//            } catch (SQLException sqlE) {
-//                sqlE.printStackTrace();
-//            }
 
 
             /**
