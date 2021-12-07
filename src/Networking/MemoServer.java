@@ -1,64 +1,47 @@
 package Networking;
 
-//used, similar to the lecture code: StudentServer
-
+//not thread safe, use MultiThreadServer instead
 import Database.Connect;
 
 import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Date;
 
 public class MemoServer {
-    private ObjectOutputStream outputToFile;
+
     private ObjectInputStream inputFromClient;
+    private ObjectOutputStream outputToClient;
+    // Number a client
+    private int clientNo = 0;
 
     public MemoServer() {
         try {
             // Create a server socket
             ServerSocket serverSocket = new ServerSocket(8000);
             System.out.println("Server started ");
-
-            // Create an object output stream
-            outputToFile = new ObjectOutputStream( new FileOutputStream("memo.dat", true));
-
-
-
             while (true) {
                 // Listen for a new connection request
                 Socket socket = serverSocket.accept();
 
                 // Create an input stream from the socket
-                inputFromClient =
-                        new ObjectInputStream(socket.getInputStream());
+                inputFromClient = new ObjectInputStream(socket.getInputStream());
+                // Create an output stream from the socket
+                outputToClient = new ObjectOutputStream(socket.getOutputStream());
 
                 // Read from input
                 Object object = inputFromClient.readObject();
+                System.out.println(object);
 
-                //use SQL to save to database, and this is no longer implemented in EditingUI.java
                 MemoData md = (MemoData) object; //cast
-
-                //
-
-                //
-
-                //
-
-
-
 
                 System.out.println("got object " + object.toString());
 
-
-
-
-                ///
+                //save to database, and this is no longer implemented in EditingUI.java
                 String nameOfMemo = md.getName();
                 String contents = md.getContents();
-
 
                 String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
                 Connection conn = Connect.connect();
@@ -66,8 +49,6 @@ public class MemoServer {
                     PreparedStatement pstmt = conn.prepareStatement(sql);
                     // set the corresponding param
                     pstmt.setString(1, nameOfMemo);
-//                System.out.println("--------\nthis is after inserting into the database");
-//                System.out.println(resultTitle); ///by this time, name has not be assigned by users
                     pstmt.setString(2, contents);
                     // update
                     pstmt.executeUpdate();
@@ -76,13 +57,27 @@ public class MemoServer {
                     sqlE.printStackTrace();
                 }
 
+                //output stream
+                // Send area back to the client
+                String sqlName = "SELECT name FROM memos WHERE name > ?";
+                conn = Connect.connect();
+                StringBuilder sb = new StringBuilder();
+                try (PreparedStatement pstmt = conn.prepareStatement(sqlName)) {
+                    pstmt.setString(1, "");
+                    ResultSet rs = pstmt.executeQuery();
 
-                // Write to the file
-//                StudentAddress s = (StudentAddress)object; // cast to the student objects
-//                System.out.println("got object " + object.toString());
-//                outputToFile.writeObject(object);
-//                outputToFile.flush();
-//                System.out.println("A new student object is stored");
+                    while (rs.next()) {
+                        sb.append(rs.getString("name")).append("\t");
+                        System.out.println(rs.getString("name") + "\t");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                outputToClient.writeObject(sb.toString());
+                System.out.println("A new student object is stored");
+                outputToClient.flush(); //make sure all are flushed
+
             }
         }catch (IOException ioe) {
             ioe.printStackTrace();
@@ -91,17 +86,16 @@ public class MemoServer {
         } finally {
             try{
                 inputFromClient.close();
-                outputToFile.close();
+                outputToClient.close();
             }catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        //now we have input from the editing ui, we should take the data and store it in the database
     }
 
-
     public static void main(String[] args) {
+//        MemoServer ms = new MemoServer();
         new MemoServer();
     }
 }

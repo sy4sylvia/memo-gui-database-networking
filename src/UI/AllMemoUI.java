@@ -1,15 +1,22 @@
 package UI;
 
 import Database.Connect;
+import Networking.MemoData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Queue;
 
 public class AllMemoUI extends JFrame {
     private JButton memo1;
@@ -25,24 +32,84 @@ public class AllMemoUI extends JFrame {
 
     private Connection conn;
 
-
     public AllMemoUI() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         this.initialButtons();
         this.createButtonField();
 
+        QueryServer();
+
         this.pack();
         this.setSize(500,400);
         this.setLocationRelativeTo(null);
 
-        conn = Connect.connect();
+//        conn = Connect.connect();
     }
+
+    private void QueryServer() {
+        try {
+            // Establish connection with the server
+            Socket socket = new Socket("localhost", 8000);
+
+            //create an input stream from server for titles of the memos
+            ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
+            Object allNames = fromServer.readObject();
+//                    System.out.println(allNames);
+
+            String namesInString = (String) allNames;
+            String[] singleName = namesInString.split("\n");
+            for (int i = 0; i < singleName.length; i++) {
+                System.out.println(singleName[i]);
+                System.out.println("---------------------------------");
+            }
+
+
+        }catch (IOException | ClassNotFoundException ioe) {
+            ioe.printStackTrace();
+        }
+
+
+//        try {
+//
+//        }
+//            // Establish connection with the server
+//            Socket socket = new Socket("localhost", 8000);
+//            System.out.println("Client querying server: ");
+//            // Create an input stream to receive data from the server
+//            ObjectInput fromServer = new ObjectInputStream(socket.getInputStream());
+//
+//            // Create an output stream to the server
+//            ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream()); //is it necessary here??
+//
+//            //dont want to send anything to the server
+//            // Get title and contents from the server
+//            Object all = fromServer.readObject();
+//            List<Object> l = new ArrayList<>();
+//            l.add(all);
+//            StringBuilder singleMemoName = new StringBuilder();
+//
+//            for (int i = 0; i < l.size(); i++) {
+//                if (!l.get(i).equals('\n')) singleMemoName.append(l.get(i));
+//            }
+//            System.out.println(singleMemoName);
+//
+//            System.out.println("---------------------");
+//            System.out.println(all);
+////            memo1.setText(name);
+//
+//        }catch (IOException ioe) {
+//            ioe.printStackTrace();
+//        }catch (ClassNotFoundException cnfe) {
+//            cnfe.printStackTrace();
+//        }
+
+    }
+
 
     private void initialButtons() {
 
-
-        this.memo1 = new JButton("Memo 1:\nhere should be the title");
+        this.memo1 = new JButton("Memo 1");
         this.memo2 = new JButton("Memo 2");
         this.memo3 = new JButton("Memo 3");
         this.memo4 = new JButton("Memo 4");
@@ -104,10 +171,9 @@ public class AllMemoUI extends JFrame {
     //this should be an open action listener
     class ButtonActionListener implements ActionListener{
         public void actionPerformed(ActionEvent e) {
-            getMemo("Untitled"); //????
-
+//            getMemo("Untitled"); //????
             dispose();
-            EditingUI eui = new EditingUI();
+            EditingUI eui = new EditingUI(); //constructor
             eui.setVisible(true);
         }
     }

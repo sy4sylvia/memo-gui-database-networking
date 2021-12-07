@@ -11,6 +11,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
@@ -77,7 +78,7 @@ public class EditingUI extends JFrame {
     private JTextField titleField;
 
     private JButton saveButton;
-//    private JButton cancelButton;
+    //private JButton cancelButton;
 
     private String resultTitle;
 
@@ -202,7 +203,7 @@ public class EditingUI extends JFrame {
         //back
         backFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.META_MASK));
         backFeature.setText("Back");
-        backFeature.addActionListener(new ExitActionListener());
+        backFeature.addActionListener(new BackActionListener());
         fileMenu.add(backFeature);
         //exit
         exitFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_MASK));
@@ -255,11 +256,9 @@ public class EditingUI extends JFrame {
 
         //sub menu: size
         this.sizeMenu.setText("Size");
-//        biggerFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, InputEvent.META_MASK)); //this doesn't work
         biggerFeature.setText("Bigger");
         biggerFeature.addActionListener(new BiggerSizeListener());
 
-//        smallerFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.META_MASK)); // doesn't work as well
         smallerFeature.setText("Smaller");
         smallerFeature.addActionListener(new SmallerSizeListener());
 
@@ -374,7 +373,6 @@ public class EditingUI extends JFrame {
         }
     }
 
-
     class SaveActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             int choice = JOptionPane.showConfirmDialog(null, "Sure? Can't modify afterwards.", "Save?", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -387,13 +385,12 @@ public class EditingUI extends JFrame {
                     // Create an output stream to the server
                     ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
 
-
                     //create a memo subject and send to the server
                     //title = titleField.getText();
                     //contents = textArea.getText()
                     MemoData md = new MemoData(titleField.getText(), textArea.getText());
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    //represent the objects as an array of bytes
+
                     //then create an output stream
                     ObjectOutputStream oos = new ObjectOutputStream(bos);
                     oos.writeObject(md);
@@ -408,22 +405,7 @@ public class EditingUI extends JFrame {
                 }catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
-
-
-//                String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
-//                try {
-//                    PreparedStatement pstmt = conn.prepareStatement(sql);
-//                    // set the corresponding param
-//                    pstmt.setString(1, titleField.getText());
-////                System.out.println("--------\nthis is after inserting into the database");
-////                System.out.println(resultTitle); ///by this time, name has not be assigned by users
-//                    pstmt.setString(2, textArea.getText());
-//                    // update
-//                    pstmt.executeUpdate();
-//                    JOptionPane.showMessageDialog(null, "Memo Saved");
-//                } catch (SQLException sqlE) {
-//                    sqlE.printStackTrace();
-//                }
+                System.exit(0);
             }
 
 
@@ -452,7 +434,7 @@ public class EditingUI extends JFrame {
         }
     }
 
-    class ExitActionListener implements ActionListener {
+    class BackActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (!isSaved()) {
                 int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -460,9 +442,56 @@ public class EditingUI extends JFrame {
                 else if (choice == JOptionPane.CANCEL_OPTION) return;
             }
 
+//            class anotherUI extends JFrame{
+//                private JButton memo1;
+//                private JButton memo2;
+//                private JPanel panel;
+//
+//                public anotherUI() {
+//                    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//                    this.setVisible(true);
+//                    this.initialButtons();
+//                    this.createButtonField();
+////                    QueryServer();
+//
+//                    this.pack();
+//                    this.setSize(500,400);
+//                    this.setLocationRelativeTo(null);
+//                }
+//
+//                private void initialButtons() {
+//
+//                    this.memo1 = new JButton("Memo 1");
+//                    this.memo2 = new JButton("Memo 2");
+//
+//                    memo1.addActionListener(new ButtonActionListener());
+//                    memo2.addActionListener(new ButtonActionListener());
+//
+//                }
+//                class ButtonActionListener implements ActionListener{
+//                    public void actionPerformed(ActionEvent e) {
+//                        dispose();
+//                        EditingUI eui = new EditingUI();
+//                        eui.setVisible(true);
+//                    }
+//                }
+//                private void createButtonField() {
+//                    this.panel = new JPanel(new GridLayout(3, 2));
+//                    panel.add(memo1);
+//                    panel.add(memo2);
+//                    this.add(panel);
+//                }
+//            }
+
+
             dispose();
-            AllMemoUI ui = new AllMemoUI();
-            ui.setVisible(true);
+
+
+
+            AllMemoUI amu = new AllMemoUI();
+            amu.setVisible(true);
+//            anotherUI ui = new anotherUI();
+//            ui.setVisible(true);
         }
     }
 
