@@ -21,7 +21,7 @@ public class CreateTable {
             // create a new table
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

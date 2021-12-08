@@ -34,7 +34,6 @@ public class EditingUI extends JFrame {
     private JMenuItem newFeature;
     private JMenuItem openFeature;
     private JMenuItem saveFeature;
-    private JMenuItem backFeature;
     private JMenuItem exitFeature;
 
     private JMenu editMenu;
@@ -84,9 +83,6 @@ public class EditingUI extends JFrame {
     private String name;
     private String allTexts;
 
-    ////wanna set Text area beforehand
-//    private String beforeHand;
-
     public EditingUI() {
         undoStack = new Stack<String>();
         redoStack = new Stack<String>();
@@ -100,7 +96,7 @@ public class EditingUI extends JFrame {
         //connecting to the database
         conn = Connect.connect();
 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//???????
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
 
@@ -135,7 +131,6 @@ public class EditingUI extends JFrame {
         this.newFeature = new JMenuItem();
         this.openFeature = new JMenuItem();
         this.saveFeature = new JMenuItem();
-        this.backFeature = new JMenuItem();
         this.exitFeature = new JMenuItem();
 
         this.editMenu = new JMenu();
@@ -157,7 +152,7 @@ public class EditingUI extends JFrame {
         System.out.println(formatDateTime);
 //        System.out.println(formatDateTime.length()); //length 19
 //        textArea.insert("Created at: " + formatDateTime, 0);
-        setTextArea("testing setTextArea method!!!!" + "\n" + "Created at: " + formatDateTime);
+        setTextArea("Created at: " + formatDateTime);
 
         fontSize = 13;
         fontStyle = Font.PLAIN;
@@ -174,11 +169,8 @@ public class EditingUI extends JFrame {
         this.boldCheckBox = new JCheckBoxMenuItem("Bold");
         this.italicCheckBox = new JCheckBoxMenuItem("Italic");
 
-        //what is a separator????????????
-
-
         this.setTitle("Memo");
-        this.setAutoRequestFocus(false);//？？？
+        this.setAutoRequestFocus(false);
         this.textArea.setColumns(25);
         this.textArea.setRows(10);
 
@@ -295,7 +287,6 @@ public class EditingUI extends JFrame {
         menuBar.add(editMenu);
         menuBar.add(fontMenu);
         this.setJMenuBar(menuBar);
-//        this.getContentPane().setLayout(layout); //maybe make layout local and private?
 
         this.add(scrollPane);
         this.pack();
@@ -321,9 +312,9 @@ public class EditingUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             resultTitle = titleField.getText();
             setTitleField(resultTitle);
-            System.out.println("-------------------test on setTitle field");
-            System.out.println(resultTitle);
-            System.out.println("-------------------test on setTitle field end");
+//            System.out.println("-------------------test on setTitle field");
+//            System.out.println(resultTitle);
+//            System.out.println("-------------------test on setTitle field end");
 
 //            titleField.setText(titleField.getText());
             JOptionPane.showMessageDialog(null, "Title Saved");
@@ -340,7 +331,6 @@ public class EditingUI extends JFrame {
             dispose();
             EditingUI newUI = new EditingUI();
             newUI.setVisible(true);
-
         }
     }
 
@@ -361,21 +351,8 @@ public class EditingUI extends JFrame {
                     //contents = textArea.getText()
                     MemoData md = new MemoData(titleField.getText(), textArea.getText());
 
-//                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//                    //then create an output stream
-//                    ObjectOutputStream oos = new ObjectOutputStream(bos);
-//                    oos.writeObject(md);
-//                    oos.flush(); //make sure everything is flushed out
-//                    byte[] objectBytes = bos.toByteArray();
-//                    System.out.println("object bytes are: " + Arrays.toString(objectBytes));
-
-
                     toServer.writeObject(md);
                     toServer.flush();
-                    //testing:
-                    System.out.println(toServer);
-//                    System.out.println("object bytes are: " + Arrays.toString(objectBytes));
-
 
                     JOptionPane.showMessageDialog(null, "Memo Saved");
 
@@ -397,43 +374,16 @@ public class EditingUI extends JFrame {
                     ioe.printStackTrace();
                 }
             }
-
-            /**
-             * Update data of a warehouse specified by the id
-             *
-             * @param id
-             * @param name title of the memo
-             * @param contents contents of the memo
-             */
-
-//            String updateTitle = "UPDATE memos SET name = ? , " + "WHERE contents = ?";
-//
-//            try {
-//                PreparedStatement pstmt = conn.prepareStatement(updateTitle);
-//                // set the corresponding param
-//                pstmt.setString(1, name);
-//                pstmt.setString(2, textArea.getText());
-////                pstmt.setInt(3, id);
-//                // update
-//                pstmt.executeUpdate();
-//                JOptionPane.showMessageDialog(null, "Successfully Saved");
-//            } catch (SQLException sqlE) {
-//                sqlE.printStackTrace();
-//            }
         }
     }
 
     class OpenActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-
             if (!isSaved()) {
                 int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
                 else if (choice == JOptionPane.CANCEL_OPTION) return;
                 else {
-//                    JOptionPane.showMessageDialog(null, "Please save before going back");
-//                    new SaveActionListener().actionPerformed(e);
-
                     //Open without saving the current memo
                     try {
                         Socket socket = new Socket("localhost", 8000);
@@ -448,7 +398,6 @@ public class EditingUI extends JFrame {
                             Object titles = fromServer.readObject();
 //                            String[] args = new String[] {titles.toString()};
 //                            MemoDisplayUI.main(args);
-
                             MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
                             mdui.setVisible(true);
                             textArea.append("\n" +  "titles are: " + "\n" + titles.toString());

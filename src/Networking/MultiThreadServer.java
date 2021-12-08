@@ -83,8 +83,6 @@ public class MultiThreadServer extends JFrame implements Runnable {
         /** Run a thread */
         @Override
         public void run() {
-            int received = 1;
-
 
             // Create an input stream from the client
             try {
@@ -97,6 +95,9 @@ public class MultiThreadServer extends JFrame implements Runnable {
                 MemoData md = (MemoData) object;
                 String nameOfMemo = md.getName();
                 String contents = md.getContents();
+
+                // if a new name, then insert into the database;
+                //if not a new name, warn the user of creating another one????
 
                 if (nameOfMemo != null && contents != null) {
                     String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
@@ -118,14 +119,6 @@ public class MultiThreadServer extends JFrame implements Runnable {
 
 
                 //now we've got the output stream, need to handle different requests for them
-
-
-                //case 1: need names only
-                //originally the database already has some memos
-
-                //if what????? the constraint????
-
-
 
                 if (nameOfMemo == null && contents == null) {
                     String sqlName = "SELECT name FROM memos WHERE name > ?";
@@ -153,21 +146,11 @@ public class MultiThreadServer extends JFrame implements Runnable {
                 }
 
 
-
-                //case 2: restore certain memo
-
-
-                /**
-                 * Get the warehouse whose capacity greater than a specified capacity
-                 * @param name
-                 */
-                //SELECT id, name, capacity
-
                 if (nameOfMemo != null && contents == null) {
 
                     String sqlRestore = "SELECT id, name, contents FROM memos WHERE name = ?";
                     Connection conn = Connect.connect();
-//                    StringBuilder sbbb = new StringBuilder();
+
                     try {
                         PreparedStatement pstmt = conn.prepareStatement(sqlRestore);
 
@@ -187,9 +170,7 @@ public class MultiThreadServer extends JFrame implements Runnable {
                             storedName = rs.getString("name");
                             storedContents = rs.getString("contents");
                         }
-                        //output stream
-                        //Send back the names of memos to the client
-    //                    allMemoNames = sbbb.toString();
+
                         outputToClient.writeObject(storedName + '\n' + storedContents);
                         System.out.println("fuck--------");
                         System.out.println("output to client testing " + storedName + '\n' + storedContents);
@@ -202,14 +183,9 @@ public class MultiThreadServer extends JFrame implements Runnable {
                         e.printStackTrace();
                     }
                 }
-//
-//
-//
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
-
-
         }
     }
 

@@ -15,7 +15,7 @@ public class CreateDB {
                 System.out.println("A new database has been created.");
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -77,7 +77,7 @@ public class MemoDisplayUI extends JFrame{
         this.textArea.setColumns(25);
         this.textArea.setRows(10);
 
-        String sth = "WARNING: " + "\n" + "Server not connected." + "\n" + "Please start again to view all memos.";
+        String sth = "WARNING: " + "\n" + "Server not connected." + "\n" + "Please start the server first to view all memos.";
 
         //default
         try {
@@ -104,6 +104,7 @@ public class MemoDisplayUI extends JFrame{
             try {
                 Object titles = fromServer.readObject();
                 sth = titles.toString();
+//                System.out.println(sth);
 //                mdui.setVisible(true);
 //                textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
 //                System.out.println(titles.toString());
@@ -113,7 +114,6 @@ public class MemoDisplayUI extends JFrame{
         }catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
 
         textArea.setText(sth);
 
@@ -174,9 +174,8 @@ public class MemoDisplayUI extends JFrame{
     class openActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             resultTitle = selectField.getText();
-
 //            selectField.setText(selectField.getText());
-//            System.out.println("textField has value: " + selectField);
+//            System.out.println("textField has value: " + selectField.getText());
             dispose();
 
             try {
@@ -199,20 +198,21 @@ public class MemoDisplayUI extends JFrame{
 
                 ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
 
+
                 try {
                     Object specifiedMemo = fromServer.readObject();
                     System.out.println("title and the contents? " + "\n" + specifiedMemo);
 
                     //successfully received the specified Memo
                     //ok the thing now is
-                    //how to seperate title and contents
+                    //how to separate title and contents
                     //and restore to the editing ui
 
                     String[] xx = specifiedMemo.toString().split("\n", 2);
-                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
-                    System.out.println(xx[0]);
-                    System.out.println(xx[1]);
-                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
+//                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
+//                    System.out.println(xx[0]);
+//                    System.out.println(xx[1]);
+//                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
 
 
                     EditingUI editingUI = new EditingUI();
@@ -221,12 +221,13 @@ public class MemoDisplayUI extends JFrame{
                     editingUI.setVisible(true);
                     editingUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
                 }catch (ClassNotFoundException cnfe) {
                     cnfe.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "No such memo");
                 }
             }catch (IOException ioe) {
                 ioe.printStackTrace();
+                JOptionPane.showMessageDialog(null, "No such memo");
             }
 
 
