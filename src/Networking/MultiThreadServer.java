@@ -42,18 +42,19 @@ public class MultiThreadServer extends JFrame implements Runnable {
 
             while (true) {
                 // Listen for a new connection request
-                Socket socket = serverSocket.accept();
-                // Increment clientNo
-                clientNo++;
-                ta.append('\n' + "Starting thread for client " + clientNo + " at " + new Date() + '\n');
+                synchronized (serverSocket) {
+                    Socket socket = serverSocket.accept();
+                    // Increment clientNo
+                    clientNo++;
+                    ta.append('\n' + "Starting thread for client " + clientNo + " at " + new Date() + '\n');
 
-                new Thread(new HandleAClient(socket, clientNo)).start();
+                    new Thread(new HandleAClient(socket, clientNo)).start();
+                }
             }
         }
         catch(IOException ex) {
             System.err.println(ex);
         }
-
     }
 
     // Define the thread class for handling new connection
@@ -70,9 +71,9 @@ public class MultiThreadServer extends JFrame implements Runnable {
         /** Run a thread */
         public void run() {
             try {
-                // Create an input stream from the socket
+                // Create an input stream from the client
                 ObjectInputStream inputFromClient = new ObjectInputStream(socket.getInputStream());
-                // Create an output stream from the socket
+                // Create an output stream to the client
                 ObjectOutputStream outputToClient = new ObjectOutputStream(socket.getOutputStream());
 
                 // Continuously serve the client
@@ -89,43 +90,45 @@ public class MultiThreadServer extends JFrame implements Runnable {
                     String nameOfMemo = md.getName();
                     String contents = md.getContents();
 
-                    String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
-                    Connection conn = Connect.connect();
-                    try {
-                        PreparedStatement pstmt = conn.prepareStatement(sql);
-                        // set the corresponding param
-                        pstmt.setString(1, nameOfMemo);
-                        pstmt.setString(2, contents);
-                        // update
-                        pstmt.executeUpdate();
+                    if (nameOfMemo != null && contents != null) {
+                        String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
+                        Connection conn = Connect.connect();
+                        try {
+                            PreparedStatement pstmt = conn.prepareStatement(sql);
+                            // set the corresponding param
+                            pstmt.setString(1, nameOfMemo);
+                            pstmt.setString(2, contents);
+                            // update
+                            pstmt.executeUpdate();
 
-                    } catch (SQLException sqlE) {
-                        sqlE.printStackTrace();
-                    }
-
-                    //output stream
-                    //Send back the names of memos to the client
-                    String sqlName = "SELECT name FROM memos WHERE name > ?";
-                    conn = Connect.connect();
-                    StringBuilder sb = new StringBuilder();
-                    try (PreparedStatement pstmt = conn.prepareStatement(sqlName)) {
-                        pstmt.setString(1, "");
-                        ResultSet rs = pstmt.executeQuery();
-
-                        while (rs.next()) {
-                            sb.append(rs.getString("name") + '\n');
-//                            outputToClient.writeObject(sb.toString());
-                            System.out.println(rs.getString("name") + "\t");
+                        } catch (SQLException sqlE) {
+                            sqlE.printStackTrace();
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+
+                        String sqlName = "SELECT name FROM memos WHERE name > ?";
+                        conn = Connect.connect();
+                        StringBuilder sb = new StringBuilder();
+                        try (PreparedStatement pstmt = conn.prepareStatement(sqlName)) {
+                            pstmt.setString(1, "");
+                            ResultSet rs = pstmt.executeQuery();
+
+                            while (rs.next()) {
+                                sb.append(rs.getString("name") + '\n');
+//                            outputToClient.writeObject(sb.toString());
+                                System.out.println(rs.getString("name") + "\t");
+                            }
+                            //output stream
+                            //Send back the names of memos to the client
+                            allMemoNames = sb.toString();
+                            outputToClient.writeObject(allMemoNames);
+                            outputToClient.flush(); //make sure all are flushed
+
+                            ta.append("Area found: " + allMemoNames);
+
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    allMemoNames = sb.toString();
-                    outputToClient.writeObject(allMemoNames);
-                    outputToClient.flush(); //make sure all are flushed
-
-                    ta.append("Area found: " + allMemoNames);
-
                 }
             }
             catch(IOException | ClassNotFoundException ex) {

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.Key;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -38,6 +39,7 @@ public class EditingUI extends JFrame {
 
     private JMenu fileMenu;
     private JMenuItem newFeature;
+    private JMenuItem openFeature;
     private JMenuItem saveFeature;
     private JMenuItem backFeature;
     private JMenuItem exitFeature;
@@ -135,6 +137,7 @@ public class EditingUI extends JFrame {
 
         this.fileMenu = new JMenu();
         this.newFeature = new JMenuItem();
+        this.openFeature = new JMenuItem();
         this.saveFeature = new JMenuItem();
         this.backFeature = new JMenuItem();
         this.exitFeature = new JMenuItem();
@@ -195,6 +198,12 @@ public class EditingUI extends JFrame {
         newFeature.setText("New");
         newFeature.addActionListener(new NewActionListener());
         fileMenu.add(newFeature);
+
+        //open
+        openFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_MASK));
+        openFeature.setText("Open");
+        openFeature.addActionListener(new BackActionListener());
+        fileMenu.add(openFeature);
         //save current memo to the database: editedContents.db
         saveFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_MASK));
         saveFeature.setText("Save");
@@ -389,25 +398,44 @@ public class EditingUI extends JFrame {
                     //title = titleField.getText();
                     //contents = textArea.getText()
                     MemoData md = new MemoData(titleField.getText(), textArea.getText());
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-                    //then create an output stream
-                    ObjectOutputStream oos = new ObjectOutputStream(bos);
-                    oos.writeObject(md);
-                    oos.flush(); //make sure everything is flushed out
-                    byte[] objectBytes = bos.toByteArray();
-                    System.out.println("object bytes are: " + Arrays.toString(objectBytes));
+//                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//                    //then create an output stream
+//                    ObjectOutputStream oos = new ObjectOutputStream(bos);
+//                    oos.writeObject(md);
+//                    oos.flush(); //make sure everything is flushed out
+//                    byte[] objectBytes = bos.toByteArray();
+//                    System.out.println("object bytes are: " + Arrays.toString(objectBytes));
+
 
                     toServer.writeObject(md);
+                    toServer.flush();
+                    //testing:
+                    System.out.println(toServer);
+//                    System.out.println("object bytes are: " + Arrays.toString(objectBytes));
+
 
                     JOptionPane.showMessageDialog(null, "Memo Saved");
+
+                    //try if the output stream of the server works fine
+                    // Create an input stream from the server
+                    ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
+
+                    try {
+                        Object titles = fromServer.readObject();
+                        MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
+                        mdui.setVisible(true);
+                        textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
+                        System.out.println(titles.toString());
+                    }catch (ClassNotFoundException cnfe) {
+                        cnfe.printStackTrace();
+                    }
+
 
                 }catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
-                System.exit(0);
             }
-
 
             /**
              * Update data of a warehouse specified by the id
@@ -436,62 +464,20 @@ public class EditingUI extends JFrame {
 
     class BackActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+
+
+
             if (!isSaved()) {
                 int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
                 else if (choice == JOptionPane.CANCEL_OPTION) return;
+                else {
+                    JOptionPane.showMessageDialog(null, "Please save before going back");
+                    new SaveActionListener().actionPerformed(e);
+                }//??????????????????????
             }
 
-//            class anotherUI extends JFrame{
-//                private JButton memo1;
-//                private JButton memo2;
-//                private JPanel panel;
-//
-//                public anotherUI() {
-//                    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//                    this.setVisible(true);
-//                    this.initialButtons();
-//                    this.createButtonField();
-////                    QueryServer();
-//
-//                    this.pack();
-//                    this.setSize(500,400);
-//                    this.setLocationRelativeTo(null);
-//                }
-//
-//                private void initialButtons() {
-//
-//                    this.memo1 = new JButton("Memo 1");
-//                    this.memo2 = new JButton("Memo 2");
-//
-//                    memo1.addActionListener(new ButtonActionListener());
-//                    memo2.addActionListener(new ButtonActionListener());
-//
-//                }
-//                class ButtonActionListener implements ActionListener{
-//                    public void actionPerformed(ActionEvent e) {
-//                        dispose();
-//                        EditingUI eui = new EditingUI();
-//                        eui.setVisible(true);
-//                    }
-//                }
-//                private void createButtonField() {
-//                    this.panel = new JPanel(new GridLayout(3, 2));
-//                    panel.add(memo1);
-//                    panel.add(memo2);
-//                    this.add(panel);
-//                }
-//            }
-
-
             dispose();
-
-
-
-            AllMemoUI amu = new AllMemoUI();
-            amu.setVisible(true);
-//            anotherUI ui = new anotherUI();
-//            ui.setVisible(true);
         }
     }
 
@@ -635,15 +621,6 @@ public class EditingUI extends JFrame {
             setSampleFont();
         }
     }
-
-
-//    class SelectListener implements ActionListener {
-//        public void actionPerformed(ActionEvent e) {
-//            String tmp = textArea.getText();
-//            undoStack.push(tmp);
-//            textArea.insert(helper, textArea.getCaretPosition());
-//        }
-//    }
 
 
     class BoldActionListener implements ActionListener {
