@@ -141,7 +141,6 @@ public class EditingUI extends JFrame {
         this.deleteSelectedFeature = new JMenuItem();
         this.findFeature = new JMenuItem();
 
-
 //        name = textArea.getText();
 
 //        name = new SaveTitle().getResult();
@@ -152,8 +151,6 @@ public class EditingUI extends JFrame {
         System.out.println(formatDateTime);
 //        System.out.println(formatDateTime.length()); //length 19
         textArea.insert("Created at: " + formatDateTime, 0);
-
-//        textArea.setCaretPosition(formatDateTime.length());
 
         fontSize = 13;
         fontStyle = Font.PLAIN;
@@ -283,26 +280,8 @@ public class EditingUI extends JFrame {
 
         styleMenu.add(boldCheckBox);
         styleMenu.add(italicCheckBox);
-//        styleMenu.add(underlineCheckBox);
 
         fontMenu.add(styleMenu);
-
-
-        //layout
-//        GroupLayout layout = new GroupLayout(getContentPane());
-//        getContentPane().setLayout(layout);
-//        layout.setHorizontalGroup(
-//                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-//                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addContainerGap()
-//                                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
-//                                .addContainerGap())
-//        );
-//        layout.setVerticalGroup(
-//                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-//                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addContainerGap()
-//                                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-//                                .addContainerGap())
-//        );
 
 
         menuBar.add(fileMenu);
@@ -336,23 +315,6 @@ public class EditingUI extends JFrame {
             resultTitle = titleField.getText();
             titleField.setText(titleField.getText());
             JOptionPane.showMessageDialog(null, "Title Saved");
-
-//            String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
-//            try {
-//                PreparedStatement pstmt = conn.prepareStatement(sql);
-//                // set the corresponding param
-//                pstmt.setString(1, titleField.getText());
-////                System.out.println("--------\nthis is after inserting into the database");
-////                System.out.println(resultTitle); ///by this time, name has not be assigned by users
-//                pstmt.setString(2, textArea.getText());
-//                // update
-//                pstmt.executeUpdate();
-//                JOptionPane.showMessageDialog(null, "Title Saved");
-//            } catch (SQLException sqlE) {
-//                sqlE.printStackTrace();
-//            }
-
-//            System.exit(0);
         }
     }
 
@@ -363,7 +325,6 @@ public class EditingUI extends JFrame {
                 if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
                 else if (choice == JOptionPane.CANCEL_OPTION) return;
             }
-//            new SaveActionListener().actionPerformed(e);
             dispose();
             EditingUI newUI = new EditingUI();
             newUI.setVisible(true);
@@ -415,7 +376,6 @@ public class EditingUI extends JFrame {
                         MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
                         mdui.setVisible(true);
                         dispose();
-
                     }catch (ClassNotFoundException cnfe) {
                         cnfe.printStackTrace();
                     }
@@ -473,19 +433,21 @@ public class EditingUI extends JFrame {
 
                         try {
                             Object titles = fromServer.readObject();
+//                            String[] args = new String[] {titles.toString()};
+//                            MemoDisplayUI.main(args);
+
                             MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
                             mdui.setVisible(true);
-//                            textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
-//                            System.out.println(titles.toString());
+                            textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
+                            System.out.println(titles.toString());
                         }catch (ClassNotFoundException cnfe) {
                             cnfe.printStackTrace();
                         }
                     }catch (IOException ioe) {
                         ioe.printStackTrace();
                     }
-                }//??????????????????????
+                }
             }
-
             dispose();
         }
     }
@@ -656,8 +618,11 @@ public class EditingUI extends JFrame {
     }
 
 
+    public void setTextArea(String sth) {
+        this.textArea = new JTextArea(sth);
+    }
 
-        public static void main(String[] args) {
+    public static void main(String[] args) {
             /* Create and display the form */
 
 //        new Runnable() {
@@ -665,11 +630,11 @@ public class EditingUI extends JFrame {
 //                new EditingUI().setVisible(true);
 //            }
 //        };
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    EditingUI curMemo = new EditingUI();
-                    curMemo.setVisible(true);
-                }
-            });
-        }
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                EditingUI curMemo = new EditingUI();
+                curMemo.setVisible(true);
+            }
+        });
     }
+}

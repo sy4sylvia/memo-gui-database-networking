@@ -20,6 +20,10 @@ public class MultiThreadServer extends JFrame implements Runnable {
     private int clientNo = 0;
     private String allMemoNames;
 
+    private int storedId;
+    private String storedName;
+    private String storedContents;
+
     public MultiThreadServer() {
         ta = new JTextArea(10,10);
         JScrollPane sp = new JScrollPane(ta);
@@ -60,53 +64,70 @@ public class MultiThreadServer extends JFrame implements Runnable {
         private Socket socket; // A connected socket
         private int clientNum;
 
+        private ObjectInputStream ois;
+        private ObjectOutputStream oos;
+
         /** Construct a thread */
         public HandleAClient(Socket socket, int clientNum) {
             this.socket = socket;
             this.clientNum = clientNum;
         }
 
+        //another constructor
+        public HandleAClient(Socket socket, ObjectInputStream ois, ObjectOutputStream oos){
+            this.socket = socket;
+            this.ois = ois;
+            this.oos = oos;
+        }
+
         /** Run a thread */
+        @Override
         public void run() {
+            int received = 1;
+
+
+            // Create an input stream from the client
             try {
-                // Create an input stream from the client
                 ObjectInputStream inputFromClient = new ObjectInputStream(socket.getInputStream());
                 // Create an output stream to the client
                 ObjectOutputStream outputToClient = new ObjectOutputStream(socket.getOutputStream());
 
-                // Continuously serve the client
-                while (true) {
-                    // Read from input
-                    Object object = inputFromClient.readObject();
-                    System.out.println(object);
+                // Read from input
+                Object object = inputFromClient.readObject();
+                MemoData md = (MemoData) object;
+                String nameOfMemo = md.getName();
+                String contents = md.getContents();
 
-                    MemoData md = (MemoData) object; //cast
-
-                    System.out.println("got object " + object.toString());
-
-                    //save to database, no longer implemented in EditingUI.java
-                    String nameOfMemo = md.getName();
-                    String contents = md.getContents();
-
-                    //if (nameOfMemo != null && contents != null), a new memo has been saved
-
-                    if (nameOfMemo != null && contents != null) {
-                        String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
-                        Connection conn = Connect.connect();
-                        try {
-                            PreparedStatement pstmt = conn.prepareStatement(sql);
+                if (nameOfMemo != null && contents != null) {
+                    String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
+                    Connection conn = Connect.connect();
+                    try {
+                        PreparedStatement pstmt = conn.prepareStatement(sql);
                             // set the corresponding param
-                            pstmt.setString(1, nameOfMemo);
-                            pstmt.setString(2, contents);
+                        pstmt.setString(1, nameOfMemo);
+                        pstmt.setString(2, contents);
                             // update
-                            pstmt.executeUpdate();
+                        pstmt.executeUpdate();
 
-                        } catch (SQLException sqlE) {
-                            sqlE.printStackTrace();
-                        }
+                    } catch (SQLException sqlE) {
+                        sqlE.printStackTrace();
                     }
+                    outputToClient.writeObject(object);
+                    outputToClient.flush();
+                }
 
-                    //originally the database already has some memos
+
+                //now we've got the output stream, need to handle different requests for them
+
+
+                //case 1: need names only
+                //originally the database already has some memos
+
+                //if what????? the constraint????
+
+
+
+                if (nameOfMemo == null && contents == null) {
                     String sqlName = "SELECT name FROM memos WHERE name > ?";
                     Connection conn = Connect.connect();
                     StringBuilder sb = new StringBuilder();
@@ -129,12 +150,66 @@ public class MultiThreadServer extends JFrame implements Runnable {
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-
                 }
+
+
+
+                //case 2: restore certain memo
+
+
+                /**
+                 * Get the warehouse whose capacity greater than a specified capacity
+                 * @param name
+                 */
+                //SELECT id, name, capacity
+
+                if (nameOfMemo != null && contents == null) {
+
+                    String sqlRestore = "SELECT id, name, contents FROM memos WHERE name = ?";
+                    Connection conn = Connect.connect();
+//                    StringBuilder sbbb = new StringBuilder();
+                    try {
+                        PreparedStatement pstmt = conn.prepareStatement(sqlRestore);
+
+                        pstmt.setString(1, nameOfMemo);
+                        //here the string is the name
+                        ResultSet rs = pstmt.executeQuery();
+
+//                        System.out.println("inside sqlite, is name of memo still there?");
+//                        System.out.println(nameOfMemo);
+//                        System.out.println("--end of testing inside sqlite");
+
+                        System.out.println("--------fuck");
+                        System.out.println(rs.getString("name"));
+                        System.out.println("--------fuck");
+
+                        while (rs.next()) {
+                            storedName = rs.getString("name");
+                            storedContents = rs.getString("contents");
+                        }
+                        //output stream
+                        //Send back the names of memos to the client
+    //                    allMemoNames = sbbb.toString();
+                        outputToClient.writeObject(storedName + '\n' + storedContents);
+                        System.out.println("fuck--------");
+                        System.out.println("output to client testing " + storedName + '\n' + storedContents);
+                        System.out.println("fuck--------");
+                        outputToClient.flush(); //make sure all are flushed
+
+//                        ta.append("Area found: " + storedName + '\n' + storedContents); //displayed on the server GUI, for testing only
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+//
+//
+//
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
             }
-            catch(IOException | ClassNotFoundException ex) {
-                ex.printStackTrace();
-            }
+
+
         }
     }
 

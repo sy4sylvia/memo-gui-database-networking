@@ -7,6 +7,12 @@ public class MemoData implements Serializable {
     private String name;
     private String contents;
 
+    public MemoData(String name) {
+//        this.id = id;
+        this.name = name;
+    }
+
+
     public MemoData(String name, String contents) {
 //        this.id = id;
         this.name = name;

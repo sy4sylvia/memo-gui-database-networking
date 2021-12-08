@@ -67,35 +67,6 @@ public class MemoDisplayUI extends JFrame{
         this.setSize(500,400);
         this.setLocationRelativeTo(null);
 
-
-        //connect to the server, query for names of memos
-//        try {
-//            // Establish connection with the server
-//            Socket socket = new Socket("localhost", 8000);
-//
-//            //create an input stream from server for titles of the memos
-//            ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
-//            Object allNames = fromServer.readObject();
-////          System.out.println(allNames);
-//
-//            String namesInString = (String) allNames;
-//            textArea.setText(namesInString);
-////            textArea.append(namesInString);
-//
-//            String[] singleName = namesInString.split("\n");
-//            memoNo = singleName.length;
-//
-//            for (int i = 0; i < singleName.length; i++) {
-//                System.out.println(singleName[i]);
-//                System.out.println("---------------------------------");
-//            }
-//            System.out.println(memoNo);
-//
-//        }catch (IOException | ClassNotFoundException ioe) {
-//            ioe.printStackTrace();
-//        }
-
-
     }
 
 
@@ -108,6 +79,7 @@ public class MemoDisplayUI extends JFrame{
 
         String sth = "WARNING: " + "\n" + "Server not connected." + "\n" + "Please start again to view all memos.";
 
+        //default
         try {
             // Establish connection with the server
             Socket socket = new Socket("localhost", 8000);
@@ -124,8 +96,6 @@ public class MemoDisplayUI extends JFrame{
             toServer.flush();
             //testing:
             System.out.println(toServer);
-//                    System.out.println("object bytes are: " + Arrays.toString(objectBytes));
-
 
             //try if the output stream of the server works fine
             // Create an input stream from the server
@@ -145,10 +115,8 @@ public class MemoDisplayUI extends JFrame{
         }
 
 
-
         textArea.setText(sth);
 
-//        setTextArea("");
         this.scrollPane.setViewportView(this.textArea);
         this.bottomPanel = new JPanel();
 
@@ -156,7 +124,7 @@ public class MemoDisplayUI extends JFrame{
         bottomPanel.add(selectLabel);
 
         this.selectField = new JTextField(10);
-        selectField.addActionListener((e) -> System.out.println("textfield has value: " + selectField.getText()));
+        selectField.addActionListener((e) -> System.out.println("memo has title: " + selectField.getText()));
         bottomPanel.add(selectField);
 
         this.openButton = new JButton("Open");
@@ -174,8 +142,6 @@ public class MemoDisplayUI extends JFrame{
         this.setVisible(true);
         this.setSize(500,400);
         this.setLocationRelativeTo(null);
-
-
 
     }
 
@@ -207,11 +173,57 @@ public class MemoDisplayUI extends JFrame{
 
     class openActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-//            resultTitle = selectField.getText();
+            resultTitle = selectField.getText();
+
 //            selectField.setText(selectField.getText());
 //            System.out.println("textField has value: " + selectField);
             dispose();
-            EditingUI editingUI = new EditingUI();
+
+
+            try {
+                // Establish connection with the server
+                Socket socket = new Socket("localhost", 8000);
+//                System.out.println("--------------------------------");
+//                System.out.println(resultTitle);
+//                System.out.println("--------------------------------");
+                // Create an output stream to the server
+                ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
+                MemoData md = new MemoData(resultTitle);
+//                System.out.println("where am i --------------------------------");
+//                System.out.println(md);
+//                System.out.println("what ???--------------------------------");
+                toServer.writeObject(md);
+                toServer.flush();
+
+                //server sends back the specified memo
+
+                ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
+
+                try {
+                    Object specifiedMemo = fromServer.readObject();
+                    System.out.println(specifiedMemo);
+
+//                    MemoData specifiedMD = (MemoData) specifiedMemo;
+//                    String spTitle = specifiedMD.getName();
+//                    String spContents = specifiedMD.getContents();
+//                    System.out.println(spTitle);
+//                    System.out.println(spContents);
+                    EditingUI editingUI = new EditingUI();
+                    editingUI.setVisible(true);
+
+//                    sth = titles.toString();
+//                mdui.setVisible(true);
+
+                }catch (ClassNotFoundException cnfe) {
+                    cnfe.printStackTrace();
+                }
+            }catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+
+
+
+
 
         }
     }
