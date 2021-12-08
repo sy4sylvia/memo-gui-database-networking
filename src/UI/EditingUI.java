@@ -84,6 +84,9 @@ public class EditingUI extends JFrame {
     private String name;
     private String allTexts;
 
+    ////wanna set Text area beforehand
+//    private String beforeHand;
+
     public EditingUI() {
         undoStack = new Stack<String>();
         redoStack = new Stack<String>();
@@ -96,7 +99,10 @@ public class EditingUI extends JFrame {
 
         //connecting to the database
         conn = Connect.connect();
+
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//???????
     }
+
 
     public String getAllTexts() {
         allTexts = textArea.getText();
@@ -150,7 +156,8 @@ public class EditingUI extends JFrame {
         String formatDateTime = now.format(format);
         System.out.println(formatDateTime);
 //        System.out.println(formatDateTime.length()); //length 19
-        textArea.insert("Created at: " + formatDateTime, 0);
+//        textArea.insert("Created at: " + formatDateTime, 0);
+        setTextArea("testing setTextArea method!!!!" + "\n" + "Created at: " + formatDateTime);
 
         fontSize = 13;
         fontStyle = Font.PLAIN;
@@ -313,7 +320,12 @@ public class EditingUI extends JFrame {
     class SaveTitleActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             resultTitle = titleField.getText();
-            titleField.setText(titleField.getText());
+            setTitleField(resultTitle);
+            System.out.println("-------------------test on setTitle field");
+            System.out.println(resultTitle);
+            System.out.println("-------------------test on setTitle field end");
+
+//            titleField.setText(titleField.getText());
             JOptionPane.showMessageDialog(null, "Title Saved");
         }
     }
@@ -375,6 +387,7 @@ public class EditingUI extends JFrame {
                         Object titles = fromServer.readObject();
                         MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
                         mdui.setVisible(true);
+                        mdui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                         dispose();
                     }catch (ClassNotFoundException cnfe) {
                         cnfe.printStackTrace();
@@ -618,8 +631,12 @@ public class EditingUI extends JFrame {
     }
 
 
+    public void setTitleField(String sth) {
+        this.titleField.setText(sth);
+    }
+
     public void setTextArea(String sth) {
-        this.textArea = new JTextArea(sth);
+        this.textArea.setText(sth);
     }
 
     public static void main(String[] args) {

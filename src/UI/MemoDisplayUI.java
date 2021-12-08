@@ -179,7 +179,6 @@ public class MemoDisplayUI extends JFrame{
 //            System.out.println("textField has value: " + selectField);
             dispose();
 
-
             try {
                 // Establish connection with the server
                 Socket socket = new Socket("localhost", 8000);
@@ -192,6 +191,7 @@ public class MemoDisplayUI extends JFrame{
 //                System.out.println("where am i --------------------------------");
 //                System.out.println(md);
 //                System.out.println("what ???--------------------------------");
+                //this works just fine
                 toServer.writeObject(md);
                 toServer.flush();
 
@@ -201,18 +201,26 @@ public class MemoDisplayUI extends JFrame{
 
                 try {
                     Object specifiedMemo = fromServer.readObject();
-                    System.out.println(specifiedMemo);
+                    System.out.println("title and the contents? " + "\n" + specifiedMemo);
 
-//                    MemoData specifiedMD = (MemoData) specifiedMemo;
-//                    String spTitle = specifiedMD.getName();
-//                    String spContents = specifiedMD.getContents();
-//                    System.out.println(spTitle);
-//                    System.out.println(spContents);
+                    //successfully received the specified Memo
+                    //ok the thing now is
+                    //how to seperate title and contents
+                    //and restore to the editing ui
+
+                    String[] xx = specifiedMemo.toString().split("\n", 2);
+                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
+                    System.out.println(xx[0]);
+                    System.out.println(xx[1]);
+                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
+
+
                     EditingUI editingUI = new EditingUI();
+                    editingUI.setTitleField(xx[0]);
+                    editingUI.setTextArea(xx[1]);
                     editingUI.setVisible(true);
+                    editingUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-//                    sth = titles.toString();
-//                mdui.setVisible(true);
 
                 }catch (ClassNotFoundException cnfe) {
                     cnfe.printStackTrace();
