@@ -38,22 +38,20 @@ public class MultiThreadServer extends JFrame implements Runnable {
         try {
             // Create a server socket
             ServerSocket serverSocket = new ServerSocket(8000);
-            ta.append("MultiThreadServer started at " + new Date() + '\n');
+            ta.append("MultiThreadServer started at " + '\n' + new Date() + '\n');
 
             while (true) {
                 // Listen for a new connection request
                 synchronized (serverSocket) {
                     Socket socket = serverSocket.accept();
-                    // Increment clientNo
                     clientNo++;
                     ta.append('\n' + "Starting thread for client " + clientNo + " at " + new Date() + '\n');
-
                     new Thread(new HandleAClient(socket, clientNo)).start();
                 }
             }
         }
-        catch(IOException ex) {
-            System.err.println(ex);
+        catch(IOException ioe) {
+            ioe.printStackTrace();
         }
     }
 
@@ -86,9 +84,11 @@ public class MultiThreadServer extends JFrame implements Runnable {
 
                     System.out.println("got object " + object.toString());
 
-                    //save to database, and this is no longer implemented in EditingUI.java
+                    //save to database, no longer implemented in EditingUI.java
                     String nameOfMemo = md.getName();
                     String contents = md.getContents();
+
+                    //if (nameOfMemo != null && contents != null), a new memo has been saved
 
                     if (nameOfMemo != null && contents != null) {
                         String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
@@ -104,31 +104,32 @@ public class MultiThreadServer extends JFrame implements Runnable {
                         } catch (SQLException sqlE) {
                             sqlE.printStackTrace();
                         }
-
-                        String sqlName = "SELECT name FROM memos WHERE name > ?";
-                        conn = Connect.connect();
-                        StringBuilder sb = new StringBuilder();
-                        try (PreparedStatement pstmt = conn.prepareStatement(sqlName)) {
-                            pstmt.setString(1, "");
-                            ResultSet rs = pstmt.executeQuery();
-
-                            while (rs.next()) {
-                                sb.append(rs.getString("name") + '\n');
-//                            outputToClient.writeObject(sb.toString());
-                                System.out.println(rs.getString("name") + "\t");
-                            }
-                            //output stream
-                            //Send back the names of memos to the client
-                            allMemoNames = sb.toString();
-                            outputToClient.writeObject(allMemoNames);
-                            outputToClient.flush(); //make sure all are flushed
-
-                            ta.append("Area found: " + allMemoNames);
-
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
                     }
+
+                    //originally the database already has some memos
+                    String sqlName = "SELECT name FROM memos WHERE name > ?";
+                    Connection conn = Connect.connect();
+                    StringBuilder sb = new StringBuilder();
+                    try (PreparedStatement pstmt = conn.prepareStatement(sqlName)) {
+                        pstmt.setString(1, "");
+                        ResultSet rs = pstmt.executeQuery();
+
+                        while (rs.next()) {
+                            sb.append(rs.getString("name") + '\n');
+                            System.out.println(rs.getString("name") + "\t");
+                        }
+                        //output stream
+                        //Send back the names of memos to the client
+                        allMemoNames = sb.toString();
+                        outputToClient.writeObject(allMemoNames);
+                        outputToClient.flush(); //make sure all are flushed
+
+                        ta.append("Area found: " + allMemoNames); //displayed on the server GUI, for testing only
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             }
             catch(IOException | ClassNotFoundException ex) {

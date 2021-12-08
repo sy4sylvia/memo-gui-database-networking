@@ -9,20 +9,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.security.Key;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.EmptyStackException;
-import java.util.Locale;
 import java.util.Stack;
 import java.time.LocalDateTime;
 
@@ -80,10 +73,8 @@ public class EditingUI extends JFrame {
     private JTextField titleField;
 
     private JButton saveButton;
-    //private JButton cancelButton;
 
     private String resultTitle;
-
 
     //panel for the textarea
     private JScrollPane scrollPane;
@@ -125,7 +116,6 @@ public class EditingUI extends JFrame {
 
         createButton();
         topPanel.add(saveButton);
-//        topPanel.add(cancelButton);
         topPanel.setVisible(true);
 
         this.add(topPanel, BorderLayout.NORTH);
@@ -202,18 +192,18 @@ public class EditingUI extends JFrame {
         //open
         openFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_MASK));
         openFeature.setText("Open");
-        openFeature.addActionListener(new BackActionListener());
+        openFeature.addActionListener(new OpenActionListener());
         fileMenu.add(openFeature);
         //save current memo to the database: editedContents.db
         saveFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_MASK));
         saveFeature.setText("Save");
         saveFeature.addActionListener(new SaveActionListener());
         fileMenu.add(saveFeature);
-        //back
-        backFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.META_MASK));
-        backFeature.setText("Back");
-        backFeature.addActionListener(new BackActionListener());
-        fileMenu.add(backFeature);
+//        //back
+//        backFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.META_MASK));
+//        backFeature.setText("Back");
+//        backFeature.addActionListener(new BackActionListener());
+//        fileMenu.add(backFeature);
         //exit
         exitFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_MASK));
         exitFeature.setText("Exit");
@@ -338,10 +328,9 @@ public class EditingUI extends JFrame {
     //save and cancel buttons
     private void createButton() {
         this.saveButton = new JButton("Confirm");
-//        this.cancelButton = new JButton("Cancel");
         saveButton.addActionListener(new SaveTitleActionListener());
-//        cancelButton.addActionListener((e -> System.exit(0)));
     }
+
     class SaveTitleActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             resultTitle = titleField.getText();
@@ -425,12 +414,11 @@ public class EditingUI extends JFrame {
                         Object titles = fromServer.readObject();
                         MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
                         mdui.setVisible(true);
-                        textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
-                        System.out.println(titles.toString());
+                        dispose();
+
                     }catch (ClassNotFoundException cnfe) {
                         cnfe.printStackTrace();
                     }
-
 
                 }catch (IOException ioe) {
                     ioe.printStackTrace();
@@ -462,18 +450,39 @@ public class EditingUI extends JFrame {
         }
     }
 
-    class BackActionListener implements ActionListener {
+    class OpenActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-
-
 
             if (!isSaved()) {
                 int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
                 else if (choice == JOptionPane.CANCEL_OPTION) return;
                 else {
-                    JOptionPane.showMessageDialog(null, "Please save before going back");
-                    new SaveActionListener().actionPerformed(e);
+//                    JOptionPane.showMessageDialog(null, "Please save before going back");
+//                    new SaveActionListener().actionPerformed(e);
+
+                    //Open without saving the current memo
+                    try {
+                        Socket socket = new Socket("localhost", 8000);
+                        ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
+                        ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
+
+                        MemoData md = new MemoData(null, null);
+                        toServer.writeObject(md);
+                        toServer.flush();
+
+                        try {
+                            Object titles = fromServer.readObject();
+                            MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
+                            mdui.setVisible(true);
+//                            textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
+//                            System.out.println(titles.toString());
+                        }catch (ClassNotFoundException cnfe) {
+                            cnfe.printStackTrace();
+                        }
+                    }catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
                 }//??????????????????????
             }
 

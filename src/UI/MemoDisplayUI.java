@@ -8,14 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Queue;
+
 
 public class MemoDisplayUI extends JFrame{
     private int memoNo;
@@ -24,9 +17,7 @@ public class MemoDisplayUI extends JFrame{
     private JScrollPane scrollPane;
     private JTextArea textArea;
 
-
     private String resultTitle;
-
 
     //bottom panel for the textarea
     private JPanel bottomPanel;
@@ -34,7 +25,7 @@ public class MemoDisplayUI extends JFrame{
     //textBox
     private JLabel selectLabel;
     private JTextField selectField;
-    private JButton selectButton;
+    private JButton openButton;
 
 
 //    private Connection conn;
@@ -60,9 +51,9 @@ public class MemoDisplayUI extends JFrame{
         selectField.addActionListener((e) -> System.out.println("textfield has value: " + selectField.getText()));
         bottomPanel.add(selectField);
 
-        this.selectButton = new JButton("Open");
-        selectButton.addActionListener(new openActionListener()); //what to do here
-        bottomPanel.add(selectButton);
+        this.openButton = new JButton("Open");
+        openButton.addActionListener(new openActionListener()); //what to do here
+        bottomPanel.add(openButton);
         bottomPanel.setVisible(true);
         this.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -115,7 +106,7 @@ public class MemoDisplayUI extends JFrame{
         this.textArea.setColumns(25);
         this.textArea.setRows(10);
 
-        String sth = "dfghjkl;jhgfhgjhkl";
+        String sth = "WARNING: " + "\n" + "Server not connected." + "\n" + "Please start again to view all memos.";
 
         try {
             // Establish connection with the server
@@ -155,7 +146,6 @@ public class MemoDisplayUI extends JFrame{
 
 
 
-
         textArea.setText(sth);
 
 //        setTextArea("");
@@ -169,9 +159,9 @@ public class MemoDisplayUI extends JFrame{
         selectField.addActionListener((e) -> System.out.println("textfield has value: " + selectField.getText()));
         bottomPanel.add(selectField);
 
-        this.selectButton = new JButton("Open");
-        selectButton.addActionListener(new openActionListener()); //what to do here
-        bottomPanel.add(selectButton);
+        this.openButton = new JButton("Open");
+        openButton.addActionListener(new openActionListener()); //what to do here
+        bottomPanel.add(openButton);
         bottomPanel.setVisible(true);
         this.add(bottomPanel, BorderLayout.SOUTH);
 
