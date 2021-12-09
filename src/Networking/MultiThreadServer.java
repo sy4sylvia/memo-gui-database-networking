@@ -162,9 +162,9 @@ public class MultiThreadServer extends JFrame implements Runnable {
 //                        System.out.println(nameOfMemo);
 //                        System.out.println("--end of testing inside sqlite");
 
-                        System.out.println("--------fuck");
-                        System.out.println(rs.getString("name"));
-                        System.out.println("--------fuck");
+//                        System.out.println("--------fuck");
+//                        System.out.println(rs.getString("name"));
+//                        System.out.println("--------fuck");
 
                         while (rs.next()) {
                             storedName = rs.getString("name");

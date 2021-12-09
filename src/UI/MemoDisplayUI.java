@@ -10,6 +10,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class MemoDisplayUI extends JFrame{
@@ -222,7 +224,6 @@ public class MemoDisplayUI extends JFrame{
 //            selectField.setText(selectField.getText());
             dispose();
 
-
             try {
                 // Establish connection with the server
                 Socket socket = new Socket("localhost", 8000);
@@ -239,6 +240,7 @@ public class MemoDisplayUI extends JFrame{
                 toServer.writeObject(md);
                 toServer.flush();
 
+                System.out.println(md);
                 //server sends back the specified memo
                 ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
                 try {
@@ -261,7 +263,6 @@ public class MemoDisplayUI extends JFrame{
                     editingUI.setTextArea(xx[1]);
                     editingUI.setVisible(true);
                     editingUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
                 }catch (ClassNotFoundException cnfe) {
                     cnfe.printStackTrace();
                     JOptionPane.showMessageDialog(null, "No such memo");

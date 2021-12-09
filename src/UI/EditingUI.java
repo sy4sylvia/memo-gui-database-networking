@@ -317,7 +317,7 @@ public class EditingUI extends JFrame {
     class NewActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (!isSaved()) {
-                int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
+                int choice = JOptionPane.showConfirmDialog(null, "Save current memo?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
                 else if (choice == JOptionPane.CANCEL_OPTION) return;
             }
@@ -329,7 +329,7 @@ public class EditingUI extends JFrame {
 
     class SaveActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            int choice = JOptionPane.showConfirmDialog(null, "Sure? Can't modify afterwards.", "Save?", JOptionPane.YES_NO_CANCEL_OPTION);
+            int choice = JOptionPane.showConfirmDialog(null, "Save?", "Save?", JOptionPane.YES_NO_CANCEL_OPTION);
             if (choice == JOptionPane.CANCEL_OPTION) return;
             else if (choice == JOptionPane.YES_OPTION) {
                 try {
@@ -373,7 +373,7 @@ public class EditingUI extends JFrame {
     class OpenActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (!isSaved()) {
-                int choice = JOptionPane.showConfirmDialog(null, "Save?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
+                int choice = JOptionPane.showConfirmDialog(null, "Save current memo?", "File Not Saved", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (choice == JOptionPane.YES_OPTION) new SaveActionListener().actionPerformed(e);
                 else if (choice == JOptionPane.CANCEL_OPTION) return;
                 else {
