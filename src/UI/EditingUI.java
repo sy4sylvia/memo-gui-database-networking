@@ -184,7 +184,6 @@ public class EditingUI extends JFrame {
         newFeature.setText("New");
         newFeature.addActionListener(new NewActionListener());
         fileMenu.add(newFeature);
-
         //open
         openFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_MASK));
         openFeature.setText("Open");
@@ -195,17 +194,11 @@ public class EditingUI extends JFrame {
         saveFeature.setText("Save");
         saveFeature.addActionListener(new SaveActionListener());
         fileMenu.add(saveFeature);
-//        //back
-//        backFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.META_MASK));
-//        backFeature.setText("Back");
-//        backFeature.addActionListener(new BackActionListener());
-//        fileMenu.add(backFeature);
         //exit
         exitFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_MASK));
         exitFeature.setText("Exit");
         exitFeature.addActionListener((e) -> System.exit(0));
         fileMenu.add(exitFeature);
-
 
         //editMenu
         this.editMenu.setText("Edit");

@@ -138,7 +138,7 @@ public class MultiThreadServer extends JFrame implements Runnable {
                         outputToClient.writeObject(allMemoNames);
                         outputToClient.flush(); //make sure all are flushed
 
-                        ta.append("Area found: " + allMemoNames); //displayed on the server GUI, for testing only
+//                        ta.append("Area found: " + allMemoNames); //displayed on the server GUI, for testing only
 
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -172,9 +172,9 @@ public class MultiThreadServer extends JFrame implements Runnable {
                         }
 
                         outputToClient.writeObject(storedName + '\n' + storedContents);
-                        System.out.println("fuck--------");
-                        System.out.println("output to client testing " + storedName + '\n' + storedContents);
-                        System.out.println("fuck--------");
+//                        System.out.println("fuck--------");
+//                        System.out.println("output to client testing " + storedName + '\n' + storedContents);
+//                        System.out.println("fuck--------");
                         outputToClient.flush(); //make sure all are flushed
 
 //                        ta.append("Area found: " + storedName + '\n' + storedContents); //displayed on the server GUI, for testing only

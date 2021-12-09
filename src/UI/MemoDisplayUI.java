@@ -6,11 +6,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
 
 
 public class MemoDisplayUI extends JFrame{
+    private JMenuBar menuBar;
+
+    private JMenu fileMenu;
+    private JMenuItem newFeature;
+    private JMenuItem exitFeature;
+
+
     private int memoNo;
 
     //top panel for textarea;
@@ -30,6 +39,27 @@ public class MemoDisplayUI extends JFrame{
 
     //no-arg constructor
     public MemoDisplayUI() {
+        this.menuBar = new JMenuBar();
+        this.fileMenu = new JMenu();
+        this.newFeature = new JMenuItem();
+        this.exitFeature = new JMenuItem();
+
+        //file menu
+        this.fileMenu.setText("File");
+        //new
+        newFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.META_MASK));
+        newFeature.setText("New");
+        newFeature.addActionListener(new NewActionListener());
+        fileMenu.add(newFeature);
+        //exit
+        exitFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_MASK));
+        exitFeature.setText("Exit");
+        exitFeature.addActionListener((e) -> System.exit(0));
+        fileMenu.add(exitFeature);
+        fileMenu.add(exitFeature);
+        menuBar.add(fileMenu);
+        this.setJMenuBar(menuBar);
+
         this.scrollPane = new JScrollPane();
         this.textArea = new JTextArea();
 
@@ -46,7 +76,7 @@ public class MemoDisplayUI extends JFrame{
         bottomPanel.add(selectField);
 
         this.openButton = new JButton("Open");
-        openButton.addActionListener(new openActionListener());
+        openButton.addActionListener(new OpenActionListener());
         bottomPanel.add(openButton);
         bottomPanel.setVisible(true);
         this.add(bottomPanel, BorderLayout.SOUTH);
@@ -65,6 +95,28 @@ public class MemoDisplayUI extends JFrame{
 
 
     public MemoDisplayUI(String sthInTextArea) {
+        this.menuBar = new JMenuBar();
+        this.fileMenu = new JMenu();
+        this.newFeature = new JMenuItem();
+        this.exitFeature = new JMenuItem();
+        //file menu
+        this.fileMenu.setText("File");
+        //new
+        newFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.META_MASK));
+        newFeature.setText("New");
+        newFeature.addActionListener(new NewActionListener());
+        fileMenu.add(newFeature);
+        //exit
+        exitFeature.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_MASK));
+        exitFeature.setText("Exit");
+        exitFeature.addActionListener((e) -> System.exit(0));
+
+        fileMenu.add(exitFeature);
+        menuBar.add(fileMenu);
+
+        this.setJMenuBar(menuBar);
+
+
         this.scrollPane = new JScrollPane();
         this.textArea = new JTextArea();
 
@@ -118,7 +170,7 @@ public class MemoDisplayUI extends JFrame{
         bottomPanel.add(selectField);
 
         this.openButton = new JButton("Open");
-        openButton.addActionListener(new openActionListener());
+        openButton.addActionListener(new OpenActionListener());
         bottomPanel.add(openButton);
         bottomPanel.setVisible(true);
 
@@ -128,7 +180,7 @@ public class MemoDisplayUI extends JFrame{
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
-        this.setSize(500,400);
+        this.setSize(500,300);
         this.setLocationRelativeTo(null);
     }
 
@@ -138,7 +190,6 @@ public class MemoDisplayUI extends JFrame{
 
 
 //    private void initComponents() {
-//
 //        this.scrollPane = new JScrollPane();
 //        this.textArea = new JTextArea();
 //
@@ -155,15 +206,22 @@ public class MemoDisplayUI extends JFrame{
 //        bottomPanel.add(selectButton);
 //        bottomPanel.setVisible(true);
 //        this.add(bottomPanel, BorderLayout.SOUTH);
-//
 //    }
 
-    class openActionListener implements ActionListener {
+    class NewActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            dispose();
+            EditingUI editingUI = new EditingUI();
+            editingUI.setVisible(true);
+        }
+    }
+
+    class OpenActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             resultTitle = selectField.getText();
 //            selectField.setText(selectField.getText());
-//            System.out.println("textField has value: " + selectField.getText());
             dispose();
+
 
             try {
                 // Establish connection with the server
@@ -197,7 +255,6 @@ public class MemoDisplayUI extends JFrame{
 //                    System.out.println(xx[0]);
 //                    System.out.println(xx[1]);
 //                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
-
 
                     EditingUI editingUI = new EditingUI();
                     editingUI.setTitleField(xx[0]);
