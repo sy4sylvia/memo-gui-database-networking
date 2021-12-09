@@ -89,6 +89,7 @@ public class MemoDisplayUI extends JFrame{
 
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setTitle("All Memos");
         this.setVisible(true);
         this.setSize(500,400);
         this.setLocationRelativeTo(null);
@@ -181,6 +182,7 @@ public class MemoDisplayUI extends JFrame{
 
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setTitle("All Memos");
         this.setVisible(true);
         this.setSize(500,300);
         this.setLocationRelativeTo(null);
