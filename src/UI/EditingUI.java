@@ -400,8 +400,8 @@ public class EditingUI extends JFrame {
 //                            MemoDisplayUI.main(args);
                             MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
                             mdui.setVisible(true);
-                            textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
-                            System.out.println(titles.toString());
+//                            textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
+//                            System.out.println(titles.toString());
                         }catch (ClassNotFoundException cnfe) {
                             cnfe.printStackTrace();
                         }
@@ -558,12 +558,7 @@ public class EditingUI extends JFrame {
 
     class BoldActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-//            String faceName = textArea.getText();
-
             fontStyle = Font.BOLD;
-//            int size = 13;
-//            textArea.setFont(new Font(name, style, size));
-//            textArea.repaint();
             setSampleFont();
         }
     }
@@ -571,11 +566,8 @@ public class EditingUI extends JFrame {
 
     class ItalicActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-//            String faceName = textArea.getText();
             fontStyle = Font.ITALIC;
             setSampleFont();
-//            textArea.setFont(new Font(name, style, size));
-//            textArea.repaint();
         }
     }
 
@@ -589,13 +581,6 @@ public class EditingUI extends JFrame {
     }
 
     public static void main(String[] args) {
-            /* Create and display the form */
-
-//        new Runnable() {
-//            public void run() {
-//                new EditingUI().setVisible(true);
-//            }
-//        };
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 EditingUI curMemo = new EditingUI();

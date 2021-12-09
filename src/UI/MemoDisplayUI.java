@@ -28,19 +28,13 @@ public class MemoDisplayUI extends JFrame{
     private JButton openButton;
 
 
-//    private Connection conn;
-    private String name;
-    private String allTexts;
-
-
-
+    //no-arg constructor
     public MemoDisplayUI() {
         this.scrollPane = new JScrollPane();
         this.textArea = new JTextArea();
 
         this.textArea.setColumns(25);
         this.textArea.setRows(10);
-//        setTextArea("");
         this.scrollPane.setViewportView(this.textArea);
         this.bottomPanel = new JPanel();
 
@@ -52,7 +46,7 @@ public class MemoDisplayUI extends JFrame{
         bottomPanel.add(selectField);
 
         this.openButton = new JButton("Open");
-        openButton.addActionListener(new openActionListener()); //what to do here
+        openButton.addActionListener(new openActionListener());
         bottomPanel.add(openButton);
         bottomPanel.setVisible(true);
         this.add(bottomPanel, BorderLayout.SOUTH);
@@ -95,7 +89,7 @@ public class MemoDisplayUI extends JFrame{
             toServer.writeObject(md);
             toServer.flush();
             //testing:
-            System.out.println(toServer);
+//            System.out.println(toServer);
 
             //try if the output stream of the server works fine
             // Create an input stream from the server
@@ -104,10 +98,6 @@ public class MemoDisplayUI extends JFrame{
             try {
                 Object titles = fromServer.readObject();
                 sth = titles.toString();
-//                System.out.println(sth);
-//                mdui.setVisible(true);
-//                textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
-//                System.out.println(titles.toString());
             }catch (ClassNotFoundException cnfe) {
                 cnfe.printStackTrace();
             }
@@ -128,21 +118,18 @@ public class MemoDisplayUI extends JFrame{
         bottomPanel.add(selectField);
 
         this.openButton = new JButton("Open");
-        openButton.addActionListener(new openActionListener()); //what to do here
+        openButton.addActionListener(new openActionListener());
         bottomPanel.add(openButton);
         bottomPanel.setVisible(true);
+
         this.add(bottomPanel, BorderLayout.SOUTH);
-
         this.add(scrollPane);
-
-//        initComponents();
 
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         this.setSize(500,400);
         this.setLocationRelativeTo(null);
-
     }
 
     private void setTextArea(String sth) {
@@ -195,10 +182,7 @@ public class MemoDisplayUI extends JFrame{
                 toServer.flush();
 
                 //server sends back the specified memo
-
                 ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
-
-
                 try {
                     Object specifiedMemo = fromServer.readObject();
                     System.out.println("title and the contents? " + "\n" + specifiedMemo);
@@ -229,11 +213,6 @@ public class MemoDisplayUI extends JFrame{
                 ioe.printStackTrace();
                 JOptionPane.showMessageDialog(null, "No such memo");
             }
-
-
-
-
-
         }
     }
 
@@ -242,5 +221,4 @@ public class MemoDisplayUI extends JFrame{
 //        new MemoDisplayUI();
         new MemoDisplayUI("sthInTextArea");
     }
-
 }
