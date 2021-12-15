@@ -1,8 +1,6 @@
 package Networking;
 
-
 import Database.Connect;
-
 import java.io.*;
 import java.net.*;
 import java.sql.Connection;
@@ -43,7 +41,6 @@ public class MultiThreadServer extends JFrame implements Runnable {
             // Create a server socket
             ServerSocket serverSocket = new ServerSocket(8000);
             ta.append("MultiThreadServer started at " + '\n' + new Date() + '\n');
-
             while (true) {
                 // Listen for a new connection request
                 synchronized (serverSocket) {
@@ -63,11 +60,10 @@ public class MultiThreadServer extends JFrame implements Runnable {
     class HandleAClient implements Runnable {
         private Socket socket; // A connected socket
         private int clientNum;
-
         private ObjectInputStream ois;
         private ObjectOutputStream oos;
 
-        /** Construct a thread */
+        // Construct a thread
         public HandleAClient(Socket socket, int clientNum) {
             this.socket = socket;
             this.clientNum = clientNum;
@@ -98,7 +94,6 @@ public class MultiThreadServer extends JFrame implements Runnable {
 
                 // if a new name, then insert into the database;
                 //if not a new name, warn the user of creating another one????
-
                 if (nameOfMemo != null && contents != null) {
                     String sql = "INSERT INTO memos(name, contents) VALUES(?,?)";
                     Connection conn = Connect.connect();
@@ -109,7 +104,6 @@ public class MultiThreadServer extends JFrame implements Runnable {
                         pstmt.setString(2, contents);
                             // update
                         pstmt.executeUpdate();
-
                     } catch (SQLException sqlE) {
                         sqlE.printStackTrace();
                     }
@@ -117,9 +111,7 @@ public class MultiThreadServer extends JFrame implements Runnable {
                     outputToClient.flush();
                 }
 
-
                 //now we've got the output stream, need to handle different requests for them
-
                 if (nameOfMemo == null && contents == null) {
                     String sqlName = "SELECT name FROM memos WHERE name > ?";
                     Connection conn = Connect.connect();
@@ -127,58 +119,35 @@ public class MultiThreadServer extends JFrame implements Runnable {
                     try (PreparedStatement pstmt = conn.prepareStatement(sqlName)) {
                         pstmt.setString(1, "");
                         ResultSet rs = pstmt.executeQuery();
-
                         while (rs.next()) {
                             sb.append(rs.getString("name") + '\n');
                             System.out.println(rs.getString("name") + "\t");
                         }
+
                         //output stream
                         //Send back the names of memos to the client
                         allMemoNames = sb.toString();
                         outputToClient.writeObject(allMemoNames);
                         outputToClient.flush(); //make sure all are flushed
-
-//                        ta.append("Area found: " + allMemoNames); //displayed on the server GUI, for testing only
-
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
                 }
 
-
                 if (nameOfMemo != null && contents == null) {
-
                     String sqlRestore = "SELECT id, name, contents FROM memos WHERE name = ?";
                     Connection conn = Connect.connect();
-
                     try {
                         PreparedStatement pstmt = conn.prepareStatement(sqlRestore);
-
                         pstmt.setString(1, nameOfMemo);
                         //here the string is the name
                         ResultSet rs = pstmt.executeQuery();
-
-//                        System.out.println("inside sqlite, is name of memo still there?");
-//                        System.out.println(nameOfMemo);
-//                        System.out.println("--end of testing inside sqlite");
-
-//                        System.out.println("--------fuck");
-//                        System.out.println(rs.getString("name"));
-//                        System.out.println("--------fuck");
-
                         while (rs.next()) {
                             storedName = rs.getString("name");
                             storedContents = rs.getString("contents");
                         }
-
                         outputToClient.writeObject(storedName + '\n' + storedContents);
-//                        System.out.println("fuck--------");
-//                        System.out.println("output to client testing " + storedName + '\n' + storedContents);
-//                        System.out.println("fuck--------");
                         outputToClient.flush(); //make sure all are flushed
-
-//                        ta.append("Area found: " + storedName + '\n' + storedContents); //displayed on the server GUI, for testing only
-
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -188,7 +157,6 @@ public class MultiThreadServer extends JFrame implements Runnable {
             }
         }
     }
-
     /**
      * The main method is only needed for the IDE with limited
      * JavaFX support. Not needed for running from the command line.

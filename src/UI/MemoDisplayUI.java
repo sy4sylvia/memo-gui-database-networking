@@ -10,17 +10,13 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 
 public class MemoDisplayUI extends JFrame{
     private JMenuBar menuBar;
-
     private JMenu fileMenu;
     private JMenuItem newFeature;
     private JMenuItem exitFeature;
-
 
     private int memoNo;
 
@@ -85,17 +81,13 @@ public class MemoDisplayUI extends JFrame{
 
         this.add(scrollPane);
 
-//        initComponents();
-
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("All Memos");
         this.setVisible(true);
         this.setSize(500,400);
         this.setLocationRelativeTo(null);
-
     }
-
 
     public MemoDisplayUI(String sthInTextArea) {
         this.menuBar = new JMenuBar();
@@ -119,7 +111,6 @@ public class MemoDisplayUI extends JFrame{
 
         this.setJMenuBar(menuBar);
 
-
         this.scrollPane = new JScrollPane();
         this.textArea = new JTextArea();
 
@@ -137,15 +128,10 @@ public class MemoDisplayUI extends JFrame{
             ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
 
             //create a memo subject and send to the server
-            //title = titleField.getText();
-            //contents = textArea.getText()
             MemoData md = new MemoData(null, null);
 
             toServer.writeObject(md);
             toServer.flush();
-            //testing:
-//            System.out.println(toServer);
-
             //try if the output stream of the server works fine
             // Create an input stream from the server
             ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
@@ -192,26 +178,6 @@ public class MemoDisplayUI extends JFrame{
         this.textArea = new JTextArea(sth);
     }
 
-
-//    private void initComponents() {
-//        this.scrollPane = new JScrollPane();
-//        this.textArea = new JTextArea();
-//
-//        this.bottomPanel = new JPanel();
-//        this.selectLabel = new JLabel("Select a memo: ");
-//        bottomPanel.add(selectLabel);
-//
-//        this.selectField = new JTextField(10);
-//        selectField.addActionListener(new selectActionListener());
-//        bottomPanel.add(selectField);
-//
-//        this.selectButton = new JButton("Open");
-////        selectButton.addActionListener(); //what to do here
-//        bottomPanel.add(selectButton);
-//        bottomPanel.setVisible(true);
-//        this.add(bottomPanel, BorderLayout.SOUTH);
-//    }
-
     class NewActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             dispose();
@@ -223,21 +189,14 @@ public class MemoDisplayUI extends JFrame{
     class OpenActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             resultTitle = selectField.getText();
-//            selectField.setText(selectField.getText());
             dispose();
 
             try {
                 // Establish connection with the server
                 Socket socket = new Socket("localhost", 8000);
-//                System.out.println("--------------------------------");
-//                System.out.println(resultTitle);
-//                System.out.println("--------------------------------");
                 // Create an output stream to the server
                 ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
                 MemoData md = new MemoData(resultTitle);
-//                System.out.println("where am i --------------------------------");
-//                System.out.println(md);
-//                System.out.println("what ???--------------------------------");
                 //this works just fine
                 toServer.writeObject(md);
                 toServer.flush();
@@ -249,17 +208,7 @@ public class MemoDisplayUI extends JFrame{
                     Object specifiedMemo = fromServer.readObject();
                     System.out.println("title and the contents? " + "\n" + specifiedMemo);
 
-                    //successfully received the specified Memo
-                    //ok the thing now is
-                    //how to separate title and contents
-                    //and restore to the editing ui
-
                     String[] xx = specifiedMemo.toString().split("\n", 2);
-//                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
-//                    System.out.println(xx[0]);
-//                    System.out.println(xx[1]);
-//                    System.out.println("----------------aaaaaaaaaaaaaaaaaaa");
-
                     EditingUI editingUI = new EditingUI();
                     editingUI.setTitleField(xx[0]);
                     editingUI.setTextArea(xx[1]);
@@ -275,7 +224,6 @@ public class MemoDisplayUI extends JFrame{
             }
         }
     }
-
 
     public static void main(String[] args) {
 //        new MemoDisplayUI();

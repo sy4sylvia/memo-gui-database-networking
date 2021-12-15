@@ -142,22 +142,16 @@ public class EditingUI extends JFrame {
         this.deleteSelectedFeature = new JMenuItem();
         this.findFeature = new JMenuItem();
 
-//        name = textArea.getText();
-
-//        name = new SaveTitle().getResult();
-
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
         String formatDateTime = now.format(format);
         System.out.println(formatDateTime);
-//        System.out.println(formatDateTime.length()); //length 19
-//        textArea.insert("Created at: " + formatDateTime, 0);
         setTextArea("Created at: " + formatDateTime);
 
         fontSize = 13;
         fontStyle = Font.PLAIN;
 
-        this.listener = new ChoiceListener(); //???
+        this.listener = new ChoiceListener();
 
         this.fontMenu = new JMenu();
 
@@ -175,7 +169,6 @@ public class EditingUI extends JFrame {
         this.textArea.setRows(10);
 
         this.scrollPane.setViewportView(this.textArea);
-
 
         //file menu
         this.fileMenu.setText("File");
@@ -238,7 +231,6 @@ public class EditingUI extends JFrame {
         findFeature.addActionListener(new FindActionListener());
         editMenu.add(findFeature);
 
-
         //fontMenu
         this.fontMenu.setText("Font");
 
@@ -256,25 +248,13 @@ public class EditingUI extends JFrame {
 
         //sub menu: style
         this.styleMenu.setText("Style");
-        //bold
-//        boldCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 2));
-//        boldCheckBox.setText("Bold");
-
         boldCheckBox.addActionListener(listener);
-//        boldCheckBox.addActionListener(new BoldActionListener());
-//        fontMenu.add(boldFeature);
-        //italic
-//        italicCheckBox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 2));
-
-//        italicCheckBox.setText("Italic");
-//        italicCheckBox.addActionListener(new ItalicActionListener());
         italicCheckBox.addActionListener(listener);
 
         styleMenu.add(boldCheckBox);
         styleMenu.add(italicCheckBox);
 
         fontMenu.add(styleMenu);
-
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
@@ -286,7 +266,6 @@ public class EditingUI extends JFrame {
         this.setLocationRelativeTo(null);
     }
 
-
     private boolean isOpened() {
         return opened;
     }
@@ -295,7 +274,7 @@ public class EditingUI extends JFrame {
         return saved;
     }
 
-    //save and cancel buttons
+    //save buttons
     private void createButton() {
         this.saveButton = new JButton("Confirm");
         saveButton.addActionListener(new SaveTitleActionListener());
@@ -305,11 +284,6 @@ public class EditingUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             resultTitle = titleField.getText();
             setTitleField(resultTitle);
-//            System.out.println("-------------------test on setTitle field");
-//            System.out.println(resultTitle);
-//            System.out.println("-------------------test on setTitle field end");
-
-//            titleField.setText(titleField.getText());
             JOptionPane.showMessageDialog(null, "Title Saved");
         }
     }
@@ -362,7 +336,6 @@ public class EditingUI extends JFrame {
                     }catch (ClassNotFoundException cnfe) {
                         cnfe.printStackTrace();
                     }
-
                 }catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -389,12 +362,8 @@ public class EditingUI extends JFrame {
 
                         try {
                             Object titles = fromServer.readObject();
-//                            String[] args = new String[] {titles.toString()};
-//                            MemoDisplayUI.main(args);
                             MemoDisplayUI mdui = new MemoDisplayUI(titles.toString());
                             mdui.setVisible(true);
-//                            textArea.append("\n" +  "titles are: " + "\n" + titles.toString());
-//                            System.out.println(titles.toString());
                         }catch (ClassNotFoundException cnfe) {
                             cnfe.printStackTrace();
                         }
@@ -498,7 +467,6 @@ public class EditingUI extends JFrame {
                     JOptionPane.showMessageDialog(null, "No More Results Found", "Search Finished", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
-//            System.out.println(tmp);
         }
 
         private String getString(String tmp, String search) {
@@ -516,14 +484,12 @@ public class EditingUI extends JFrame {
         }
     }
 
-
-    // This listener is shared among  checkboxes
+    // This listener is shared among  =checkboxes
     class ChoiceListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             setSampleFont();
         }
     }
-
 
     private void setSampleFont() {
         // Get font style
@@ -548,7 +514,6 @@ public class EditingUI extends JFrame {
         }
     }
 
-
     class BoldActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             fontStyle = Font.BOLD;
@@ -556,14 +521,12 @@ public class EditingUI extends JFrame {
         }
     }
 
-
     class ItalicActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             fontStyle = Font.ITALIC;
             setSampleFont();
         }
     }
-
 
     public void setTitleField(String sth) {
         this.titleField.setText(sth);
