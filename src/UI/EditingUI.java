@@ -19,6 +19,7 @@ import java.util.EmptyStackException;
 import java.util.Stack;
 import java.time.LocalDateTime;
 
+//UI where multiple users can create and edit memos
 
 public class EditingUI extends JFrame {
 
@@ -510,20 +511,6 @@ public class EditingUI extends JFrame {
     class SmallerSizeListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             fontSize -= difference;
-            setSampleFont();
-        }
-    }
-
-    class BoldActionListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            fontStyle = Font.BOLD;
-            setSampleFont();
-        }
-    }
-
-    class ItalicActionListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            fontStyle = Font.ITALIC;
             setSampleFont();
         }
     }

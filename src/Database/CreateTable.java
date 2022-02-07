@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+//create the table inside the database
 public class CreateTable {
     public static void createNewTable() {
         String url = "jdbc:sqlite:/Users/siyaguo/Desktop/MemoDatabase/editedContents.db";

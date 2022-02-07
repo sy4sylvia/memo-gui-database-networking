@@ -10,7 +10,6 @@ public class MemoData implements Serializable {
         this.name = name;
     }
 
-
     public MemoData(String name, String contents) {
         this.name = name;
         this.contents = contents;

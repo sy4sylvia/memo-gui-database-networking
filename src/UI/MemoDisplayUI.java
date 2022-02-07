@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
 
+//UI that displays all memos stored in the database
 
 public class MemoDisplayUI extends JFrame{
     private JMenuBar menuBar;

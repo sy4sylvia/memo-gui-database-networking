@@ -5,6 +5,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+//create a database
 public class CreateDB {
     public static void createNewDatabase(String fileName) {
         String url = "jdbc:sqlite:/Users/siyaguo/Desktop/MemoDatabase/" + fileName;

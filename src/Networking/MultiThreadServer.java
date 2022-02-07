@@ -10,6 +10,9 @@ import java.sql.SQLException;
 import java.util.Date;
 import javax.swing.*;
 
+//Multithreaded server that is directly connected to database
+//also displayed as a UI (as a headup that server is run before client)
+
 public class MultiThreadServer extends JFrame implements Runnable {
     // Text area for displaying contents
     private JTextArea ta;

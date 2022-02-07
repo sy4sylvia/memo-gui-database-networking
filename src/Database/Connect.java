@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+//JDBC
+
 public class Connect {
     public static Connection connect() {
         String url = "jdbc:sqlite:/Users/siyaguo/Desktop/MemoDatabase/editedContents.db";
